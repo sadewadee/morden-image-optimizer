@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'MIO_VERSION', '1.0.0' );
+define( 'MIO_VERSION', '1.0.2' );
 define( 'MIO_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MIO_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
