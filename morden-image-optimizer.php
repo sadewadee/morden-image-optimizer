@@ -11,7 +11,7 @@
  * Plugin Name:       Morden Image Optimizer
  * Plugin URI:        https://mordenhost.com/morden-image-optimizer
  * Description:       A modern, user-friendly image optimizer with advanced features including bulk optimization, backups, and auto-updates.
- * Version:           1.0.0
+ * Version:           1.0.2
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Morden Team
