@@ -1,9 +1,9 @@
 {
   "name": "Morden Image Optimizer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "<a href=\"https://mordenhost.com\">Morden Team</a>",
   "homepage": "https://mordenhost.com/morden-image-optimizer",
-  "download_url": "https://github.com/sadewadee/morden-image-optimizer/releases/download/v1.0.1/morden-image-optimizer.zip",
+  "download_url": "https://github.com/sadewadee/morden-image-optimizer/releases/download/v1.0.2/morden-image-optimizer.zip",
   "requires": "5.8",
   "tested": "6.5",
   "requires_php": "7.4",
