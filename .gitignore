@@ -27,3 +27,14 @@ npm-debug.log
 # Plugin specific
 assets/images/*.png
 assets/images/*.jpg
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Development
+.phpcs.xml
+.phpunit.result.cache

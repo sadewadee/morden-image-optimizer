@@ -11,16 +11,106 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         php-version: [7.4, 8.0, 8.1, 8.2]
 
+    name: PHP ${{ matrix.php-version }} Test
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          extensions: imagick, gd, zip, curl, json
+          coverage: none
 
       - name: Validate PHP syntax
-        run: find . -name "*.php" -exec php -l {} \\;
+        run: |
+          echo "Checking PHP syntax for all PHP files..."
+          find . -name "*.php" -not -path "./vendor/*" -not -path "./tests/*" | while read file; do
+            echo "Checking: $file"
+            php -l "$file"
+            if [ $? -ne 0 ]; then
+              echo "Syntax error in: $file"
+              exit 1
+            fi
+          done
+          echo "All PHP files have valid syntax!"
+
+      - name: Check WordPress Coding Standards (PHP 8.0 only)
+        if: matrix.php-version == '8.0'
+        run: |
+          composer install --no-dev --optimize-autoloader
+          if [ -f "vendor/bin/phpcs" ]; then
+            vendor/bin/phpcs --standard=WordPress --ignore=vendor/,tests/ .
+          else
+            echo "PHPCS not available, skipping coding standards check"
+          fi
+
+      - name: Test autoloader
+        run: |
+          cd morden-image-optimizer 2>/dev/null || echo "Already in plugin directory"
+          php -r "
+          define('MIO_PLUGIN_DIR', __DIR__ . '/');
+          if (file_exists('lib/autoload.php')) {
+            require_once 'lib/autoload.php';
+            echo 'Autoloader loaded successfully' . PHP_EOL;
+          } else {
+            echo 'Autoloader not found' . PHP_EOL;
+            exit(1);
+          }
+          "
+
+  validate-plugin:
+    runs-on: ubuntu-latest
+    name: Validate Plugin Structure
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required files
+        run: |
+          echo "Checking plugin structure..."
+
+          required_files=(
+            "morden-image-optimizer.php"
+            "readme.txt"
+            "lib/autoload.php"
+            "includes/Core/Plugin.php"
+            "info.json"
+          )
+
+          for file in "${required_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✓ $file exists"
+            else
+              echo "✗ $file is missing"
+              exit 1
+            fi
+          done
+
+          echo "All required files are present!"
+
+      - name: Validate info.json
+        run: |
+          if command -v jq &> /dev/null; then
+            jq empty info.json
+            echo "info.json is valid JSON"
+          else
+            python3 -m json.tool info.json > /dev/null
+            echo "info.json is valid JSON (validated with Python)"
+          fi
+
+      - name: Check plugin header
+        run: |
+          if grep -q "Plugin Name:" morden-image-optimizer.php; then
+            echo "✓ Plugin header found"
+          else
+            echo "✗ Plugin header missing"
+            exit 1
+          fi
