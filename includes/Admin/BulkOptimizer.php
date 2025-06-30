@@ -67,17 +67,18 @@ class BulkOptimizer {
         ]);
     }
 
-    public function render_bulk_optimize_page() {
-        if ( ! current_user_can( 'upload_files' ) ) {
-            wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'morden_optimizer' ) );
-        }
+public function render_bulk_optimize_page() {
+    if ( ! current_user_can( 'upload_files' ) ) {
+        wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'morden_optimizer' ) );
+    }
 
-        $stats = $this->get_optimization_stats();
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e( 'Bulk Optimize Images', 'morden_optimizer' ); ?></h1>
+    $stats = $this->get_optimization_stats();
+    $system_stats = $this->get_system_stats();
+    ?>
+    <div class="wrap">
+        <h1><?php esc_html_e( 'Bulk Optimize Images', 'morden_optimizer' ); ?></h1>
 
-            <div class="mio-bulk-container">
+        <div class="mio-bulk-container">
                 <div class="mio-bulk-main">
                     <div class="mio-stats-overview">
                         <div class="mio-stat-card">
@@ -147,17 +148,8 @@ class BulkOptimizer {
                         </div>
                     </div>
                 </div>
-
-                <div class="mio-bulk-sidebar">
-                    <div class="mio-info-box">
-                        <h3><?php esc_html_e( 'How It Works', 'morden_optimizer' ); ?></h3>
-                        <ul>
-                            <li><?php esc_html_e( 'Images are processed in small batches', 'morden_optimizer' ); ?></li>
-                            <li><?php esc_html_e( 'Original images are backed up (if enabled)', 'morden_optimizer' ); ?></li>
-                            <li><?php esc_html_e( 'You can pause and resume anytime', 'morden_optimizer' ); ?></li>
-                            <li><?php esc_html_e( 'Process runs safely in the background', 'morden_optimizer' ); ?></li>
-                        </ul>
-                    </div>
+<div class="mio-bulk-sidebar">
+                <!-- System status card -->
 
                     <div class="mio-info-box">
                         <h3><?php esc_html_e( 'Tips', 'morden_optimizer' ); ?></h3>
@@ -360,4 +352,13 @@ class BulkOptimizer {
             'content' => '<p>' . __( 'Images are processed in small batches to prevent server timeouts. The process can be paused and resumed at any time.', 'morden_optimizer' ) . '</p>',
         ]);
     }
+    private function get_system_stats() {
+    $optimizer = new \MordenImageOptimizer\Core\Optimizer();
+
+    return [
+        'method' => $optimizer->get_optimization_method(),
+        'memory_usage' => size_format( memory_get_usage() ),
+        'peak_memory' => size_format( memory_get_peak_usage() ),
+    ];
+}
 }

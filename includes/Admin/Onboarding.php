@@ -232,7 +232,7 @@ class Onboarding {
             return false;
         }
 
-        return true;
+        return false;
     }
 
     private function get_setup_steps() {

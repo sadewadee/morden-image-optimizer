@@ -8,7 +8,7 @@ use MordenImageOptimizer\Admin\BulkOptimizer;
 use MordenImageOptimizer\Admin\BackupManager;
 use MordenImageOptimizer\Admin\MediaLibrary;
 use MordenImageOptimizer\Admin\Onboarding;
-use MordenImageOptimizer\Admin\Dashboard;
+//use MordenImageOptimizer\Admin\Dashboard;
 
 /**
  * Main plugin class - orchestrates the entire plugin.
@@ -116,7 +116,7 @@ final class Plugin {
         BackupManager::get_instance();
         MediaLibrary::get_instance();
         Onboarding::get_instance();
-        Dashboard::get_instance();
+        //Dashboard::get_instance();
     }
 
     /**

@@ -67,3 +67,128 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* Tab Navigation */
+.nav-tab-wrapper {
+    margin-bottom: 20px;
+}
+
+.mio-tab-content {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+}
+
+/* Dashboard Tab */
+.mio-dashboard-content .mio-stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.mio-stat-card {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.mio-stat-card h3 {
+    margin: 0 0 10px 0;
+    color: #646970;
+    font-size: 14px;
+}
+
+.mio-stat-card .mio-stat-number {
+    display: block;
+    font-size: 32px;
+    font-weight: bold;
+    color: #2271b1;
+    margin-bottom: 5px;
+}
+
+.mio-stat-card .mio-stat-change {
+    font-size: 12px;
+    color: #646970;
+}
+
+/* System Tab */
+.mio-system-content {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 30px;
+}
+
+.mio-check-item {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.mio-check-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.mio-check-icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+}
+
+.mio-check-header h3 {
+    flex: 1;
+    margin: 0;
+}
+
+.mio-check-results {
+    margin-top: 15px;
+}
+
+.mio-check-detail {
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+}
+
+.mio-check-detail.mio-success {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.mio-check-detail.mio-warning {
+    background: #fff3cd;
+    color: #664d03;
+}
+
+.mio-check-detail.mio-error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Bulk Optimizer Stats */
+.mio-stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.mio-system-status .mio-status-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.mio-status-good {
+    color: #00a32a;
+    font-weight: bold;
+}

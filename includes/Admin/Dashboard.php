@@ -41,17 +41,6 @@ class Dashboard {
         );
     }
 
-    public function add_dashboard_page() {
-        add_submenu_page(
-            'options-general.php',
-            __( 'MIO Dashboard', 'morden_optimizer' ),
-            __( 'MIO Dashboard', 'morden_optimizer' ),
-            'manage_options',
-            'mio-dashboard',
-            [ $this, 'render_dashboard_page' ]
-        );
-    }
-
     public function enqueue_dashboard_assets( $hook_suffix ) {
         if ( ! in_array( $hook_suffix, [ 'index.php', 'settings_page_mio-dashboard' ], true ) ) {
             return;
