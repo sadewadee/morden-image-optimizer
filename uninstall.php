@@ -1,4 +1,6 @@
 <?php
+// File: uninstall.php
+
 /**
  * Morden Image Optimizer Uninstall
  *
@@ -11,21 +13,46 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
     exit;
 }
 
-// Clean up plugin data
-use MordenImageOptimizer\\Core\\DatabaseManager;
+// Manual cleanup without using classes
+global $wpdb;
 
 // Remove custom tables
-$db_manager = new DatabaseManager();
-$db_manager->drop_tables();
+$tables = [
+    $wpdb->prefix . 'mio_optimization_log',
+    $wpdb->prefix . 'mio_optimization_queue'
+];
+
+foreach ( $tables as $table ) {
+    $wpdb->query( "DROP TABLE IF EXISTS $table" );
+}
 
 // Remove options
-delete_option( 'mio_settings' );
-delete_option( 'mio_db_version' );
+$options = [
+    'mio_settings',
+    'mio_db_version',
+    'mio_activation_time',
+    'mio_welcome_notice_dismissed',
+    'mio_setup_notice_dismissed',
+    'mio_completed_setup_steps'
+];
+
+foreach ( $options as $option ) {
+    delete_option( $option );
+}
 
 // Clean up post meta
-global $wpdb;
 $wpdb->query( "DELETE FROM $wpdb->postmeta WHERE meta_key LIKE '_mio_%'" );
 
 // Clean up transients
-delete_transient( 'mio_update_info' );
-delete_transient( '_mio_welcome_screen_redirect' );
+$transients = [
+    'mio_update_info',
+    '_mio_welcome_screen_redirect',
+    'mio_bulk_optimization_paused'
+];
+
+foreach ( $transients as $transient ) {
+    delete_transient( $transient );
+}
+
+// Clean up scheduled events
+wp_clear_scheduled_hook( 'mio_cleanup_old_backups' );
