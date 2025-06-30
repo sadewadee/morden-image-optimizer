@@ -206,9 +206,10 @@ class SettingsPage {
             true
         );
 
-        wp_localize_script( 'mio-settings-js', 'mio_settings', [
+        // Fix: Gunakan nama yang konsisten dan nonce action yang benar
+        wp_localize_script( 'mio-settings-js', 'mio_ajax', [
             'ajax_url' => admin_url( 'admin-ajax.php' ),
-            'nonce' => Security::create_nonce( 'settings' ),
+            'nonce' => Security::create_nonce( 'settings' ), // Fix: gunakan 'settings' bukan 'mio_settings_nonce'
             'strings' => [
                 'testing' => __( 'Testing...', 'morden_optimizer' ),
                 'test_success' => __( 'Connection successful!', 'morden_optimizer' ),

@@ -49,3 +49,21 @@
     font-weight: bold;
     color: #2271b1;
 }
+.mio-setup-action {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+
+.mio-setup-step {
+    position: relative;
+    z-index: 1;
+}
+
+.mio-setup-action:hover {
+    background-color: #0073aa !important;
+}
+
+.mio-setup-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

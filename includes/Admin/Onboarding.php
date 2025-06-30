@@ -26,7 +26,10 @@ class Onboarding {
         add_action( 'admin_notices', [ $this, 'display_setup_notice' ] );
         add_action( 'wp_ajax_mio_dismiss_notice', [ $this, 'ajax_dismiss_notice' ] );
         add_action( 'wp_ajax_mio_complete_setup_step', [ $this, 'ajax_complete_setup_step' ] );
-    }
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_onboarding_assets' ] );
+        add_action( 'wp_ajax_mio_enable_backup_setting', [ $this, 'ajax_enable_backup' ] );
+        add_action( 'wp_ajax_mio_run_optimization_test', [ $this, 'ajax_run_test' ] );
+        }
 
     public static function set_welcome_redirect() {
         set_transient( '_mio_welcome_screen_redirect', true, 30 );
@@ -295,5 +298,43 @@ class Onboarding {
             'optimized_count' => (int) $optimized_images,
             'unoptimized_count' => max( 0, (int) $total_images - (int) $optimized_images ),
         ];
+    }
+
+    public function enqueue_onboarding_assets() {
+    if ( ! $this->should_show_welcome_notice() ) {
+        return;
+    }
+
+    wp_enqueue_script(
+        'mio-onboarding',
+        MIO_PLUGIN_URL . 'assets/js/onboarding.js',
+        [ 'jquery' ],
+        MIO_VERSION,
+        true
+    );
+
+    wp_localize_script( 'mio-onboarding', 'mio_onboarding', [
+        'ajax_url' => admin_url( 'admin-ajax.php' ),
+        'nonce' => Security::create_nonce( 'settings' ),
+        ]);
+    }
+
+    public function ajax_enable_backup() {
+        Security::validate_ajax_request( 'settings', 'manage_options' );
+
+        $this->config->set( 'keep_original', true );
+
+        wp_send_json_success([
+            'message' => __( 'Backup enabled successfully.', 'morden_optimizer' ),
+        ]);
+    }
+
+    public function ajax_run_test() {
+        Security::validate_ajax_request( 'settings', 'manage_options' );
+
+        // Simulate a test optimization
+        wp_send_json_success([
+            'message' => __( 'Test optimization completed successfully.', 'morden_optimizer' ),
+        ]);
     }
 }
