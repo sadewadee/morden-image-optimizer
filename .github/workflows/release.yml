@@ -1,3 +1,4 @@
+# File: .github/workflows/release.yml
 name: Create Release and Update info.json
 
 on:
@@ -10,11 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
       - name: Create plugin zip
         run: |
-          zip -r morden-image-optimizer.zip . -x "*.git*" "*.github*" "node_modules/*" "*.DS_Store"
+          # Remove development files from the zip
+          zip -r morden-image-optimizer.zip . \
+            -x "*.git*" \
+            -x "*.github*" \
+            -x "node_modules/*" \
+            -x "*.DS_Store" \
+            -x "tests/*" \
+            -x "phpunit.xml" \
+            -x "composer.json" \
+            -x "composer.lock" \
+            -x "*.md"
 
       - name: Create Release
         id: create_release
@@ -23,7 +38,27 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: Morden Image Optimizer v${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## What's New in v${{ steps.get_version.outputs.VERSION }}
+
+            ### 🚀 Features
+            - Automatic image optimization on upload
+            - Bulk optimization for existing images
+            - Original image backup and restore
+            - Support for multiple optimization methods (Imagick, GD, APIs)
+
+            ### 🔧 Technical Improvements
+            - Enhanced error handling and logging
+            - Improved performance monitoring
+            - Better security implementation
+
+            ### 📦 Installation
+            1. Download the plugin zip file below
+            2. Upload to WordPress via Plugins > Add New > Upload Plugin
+            3. Activate and configure in Settings > Morden Optimizer
+
+            For detailed changelog, see the plugin's admin page.
           draft: false
           prerelease: false
 
@@ -37,13 +72,21 @@ jobs:
           asset_name: morden-image-optimizer.zip
           asset_content_type: application/zip
 
-      - name: Update info.json
+      - name: Update info.json for auto-updater
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" info.json
-          sed -i "s/v[0-9.]*/v$VERSION/" info.json
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          DOWNLOAD_URL="https://github.com/sadewadee/morden-image-optimizer/releases/download/v${VERSION}/morden-image-optimizer.zip"
+
+          # Update info.json with new version and download URL
+          jq --arg version "$VERSION" \
+             --arg download_url "$DOWNLOAD_URL" \
+             '.version = $version | .download_url = $download_url' \
+             info.json > info.json.tmp && mv info.json.tmp info.json
+
+      - name: Commit updated info.json
+        run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add info.json
-          git commit -m "Update info.json for version $VERSION" || exit 0
-          git push
+          git commit -m "Auto-update info.json for version ${{ steps.get_version.outputs.VERSION }}" || exit 0
+          git push origin HEAD:main

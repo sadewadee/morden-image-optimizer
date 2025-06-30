@@ -7,43 +7,47 @@ Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv3 or later
 
-A modern, user-friendly image optimizer with advanced features.
+# Morden Image Optimizer
 
-== Description ==
+A modern, user-friendly WordPress image optimizer with advanced features including bulk optimization, backups, and auto-updates.
 
-Morden Image Optimizer is a comprehensive image optimization solution for WordPress that automatically optimizes your images for better performance and user experience.
+## 🚀 Features
 
-**Key Features:**
+- **Automatic Optimization**: Images are optimized upon upload using the best available method
+- **Multiple Optimization Methods**: Supports Imagick, GD Library, reSmush.it API, and TinyPNG API
+- **Bulk Optimization**: Optimize all existing images with a single click
+- **Original Image Backup**: Keep original images safe with built-in backup functionality
+- **Auto-Updates**: Seamless updates directly from GitHub
+- **Media Library Integration**: View optimization status and savings directly in Media Library
+- **Comprehensive Logging**: Detailed logging for debugging and monitoring
 
-* Automatic optimization on upload using Imagick, GD, or external APIs
-* Bulk optimization for existing images
-* Original image backup and restore functionality
-* Support for reSmush.it and TinyPNG APIs
-* Media Library integration with optimization status
-* Auto-update from GitHub repository
-* Comprehensive logging and error handling
+## 📦 Installation
 
-== Installation ==
+### Method 1: Download from Releases
+1. Go to [Releases](https://github.com/sadewadee/morden-image-optimizer/releases)
+2. Download the latest `morden-image-optimizer.zip`
+3. Upload to WordPress via Plugins > Add New > Upload Plugin
+4. Activate the plugin
 
-1. Upload the plugin files to `/wp-content/plugins/morden-image-optimizer/`
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Settings > Morden Optimizer to configure your preferences
-4. Use Media > Bulk Optimize to optimize existing images
+### Method 2: Manual Installation
+1. Clone this repository
+2. Upload the `morden-image-optimizer` folder to `/wp-content/plugins/`
+3. Activate the plugin through the 'Plugins' menu in WordPress
 
-== Frequently Asked Questions ==
+## ⚙️ Configuration
 
-= What optimization methods are supported? =
+1. Go to **Settings > Morden Optimizer**
+2. Configure your optimization preferences:
+   - Compression quality (recommended: 75-85)
+   - API service selection
+   - Enable/disable original image backup
+3. For existing images, use **Media > Bulk Optimize**
 
-The plugin supports Imagick, GD Library, reSmush.it API, and TinyPNG API.
+## 🔧 Development
 
-= Are original images backed up? =
+### Requirements
+- PHP 7.4+
+- WordPress 5.8+
+- Composer (for development dependencies)
 
-Yes, you can enable backup functionality in the settings to keep original images safe.
-
-== Changelog ==
-
-= 1.0.0 =
-* Initial release
-* MVP and Phase 1 features implemented
-* Auto-update system from GitHub
-* Comprehensive admin interface
+### Setup Development Environment

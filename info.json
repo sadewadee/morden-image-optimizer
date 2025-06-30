@@ -1,14 +1,23 @@
 {
   "name": "Morden Image Optimizer",
   "version": "1.0.0",
-  "author": "<a href=\"https://example.com\">AI Assistant</a>",
-  "homepage": "https://example.com/morden-image-optimizer",
-  "download_url": "https://github.com/YOUR_USERNAME/morden-image-optimizer/releases/download/v1.0.0/morden-image-optimizer.zip",
+  "author": "<a href=\"https://mordenhost.com\">Morden Team</a>",
+  "homepage": "https://mordenhost.com/morden-image-optimizer",
+  "download_url": "https://github.com/sadewadee/morden-image-optimizer/releases/download/v1.0.0/morden-image-optimizer.zip",
   "requires": "5.8",
   "tested": "6.5",
   "requires_php": "7.4",
   "sections": {
-    "description": "A modern, user-friendly image optimizer with advanced features including bulk optimization, backups, and auto-updates.",
-    "changelog": "<h4>1.0.0 - 2025-01-01</h4><ul><li>Initial release with MVP and Phase 1 features</li></ul>"
+    "description": "A modern, user-friendly image optimizer with advanced features including bulk optimization, backups, and auto-updates. Automatically optimizes images upon upload using the best available method (Imagick, GD, or external APIs).",
+    "installation": "1. Upload the plugin files to `/wp-content/plugins/morden-image-optimizer/`\n2. Activate the plugin through the 'Plugins' menu in WordPress\n3. Go to Settings > Morden Optimizer to configure your preferences\n4. Use Media > Bulk Optimize to optimize existing images",
+    "changelog": "<h4>1.0.0 - 2025-01-01</h4><ul><li>Initial release with MVP and Phase 1 features</li><li>Automatic optimization on upload using Imagick, GD, or external APIs</li><li>Bulk optimization for existing images</li><li>Original image backup and restore functionality</li><li>Support for reSmush.it and TinyPNG APIs</li><li>Auto-update system from GitHub repository</li><li>Comprehensive logging and error handling</li></ul>"
+  },
+  "banners": {
+    "low": "https://raw.githubusercontent.com/sadewadee/morden-image-optimizer/main/assets/images/banner-772x250.png",
+    "high": "https://raw.githubusercontent.com/sadewadee/morden-image-optimizer/main/assets/images/banner-1544x500.png"
+  },
+  "icons": {
+    "1x": "https://raw.githubusercontent.com/sadewadee/morden-image-optimizer/main/assets/images/icon-128x128.png",
+    "2x": "https://raw.githubusercontent.com/sadewadee/morden-image-optimizer/main/assets/images/icon-256x256.png"
   }
 }
