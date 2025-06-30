@@ -1,0 +1,14 @@
+{
+  "name": "Morden Image Optimizer",
+  "version": "1.0.0",
+  "author": "<a href=\"https://example.com\">AI Assistant</a>",
+  "homepage": "https://example.com/morden-image-optimizer",
+  "download_url": "https://github.com/YOUR_USERNAME/morden-image-optimizer/releases/download/v1.0.0/morden-image-optimizer.zip",
+  "requires": "5.8",
+  "tested": "6.5",
+  "requires_php": "7.4",
+  "sections": {
+    "description": "A modern, user-friendly image optimizer with advanced features including bulk optimization, backups, and auto-updates.",
+    "changelog": "<h4>1.0.0 - 2025-01-01</h4><ul><li>Initial release with MVP and Phase 1 features</li></ul>"
+  }
+}

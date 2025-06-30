@@ -1,0 +1,51 @@
+/* File: assets/css/admin-styles.css */
+
+/* Status labels for optimization method */
+.mio-status-label {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: #fff;
+    display: inline-block;
+    min-width: 120px;
+    text-align: center;
+}
+
+.mio-status-imagick { background-color: #28a745; }
+.mio-status-gd { background-color: #ffc107; color: #212529; }
+.mio-status-api { background-color: #007bff; }
+.mio-status-error { background-color: #dc3545; }
+
+/* Bulk optimizer progress */
+.mio-progress-container {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.mio-progress-bar {
+    height: 25px;
+    background-color: #28a745;
+    color: white;
+    text-align: center;
+    line-height: 25px;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+/* Dashboard styles */
+.mio-dashboard-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.mio-stat-number {
+    font-size: 2em;
+    font-weight: bold;
+    color: #2271b1;
+}

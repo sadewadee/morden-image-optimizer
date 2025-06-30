@@ -1,0 +1,29 @@
+# WordPress
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node modules
+node_modules/
+npm-debug.log
+
+# Composer
+/vendor/
+
+# Build files
+/build/
+/dist/
+
+# Plugin specific
+assets/images/*.png
+assets/images/*.jpg

@@ -1,0 +1,49 @@
+name: Create Release and Update info.json
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create plugin zip
+        run: |
+          zip -r morden-image-optimizer.zip . -x "*.git*" "*.github*" "node_modules/*" "*.DS_Store"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./morden-image-optimizer.zip
+          asset_name: morden-image-optimizer.zip
+          asset_content_type: application/zip
+
+      - name: Update info.json
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" info.json
+          sed -i "s/v[0-9.]*/v$VERSION/" info.json
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add info.json
+          git commit -m "Update info.json for version $VERSION" || exit 0
+          git push

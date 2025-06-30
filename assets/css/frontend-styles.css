@@ -1,0 +1,16 @@
+/* File: assets/css/frontend-styles.css */
+
+/* WebP fallback and lazy loading styles */
+.mio-image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.mio-lazy-loading {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mio-lazy-loaded {
+    opacity: 1;
+}
