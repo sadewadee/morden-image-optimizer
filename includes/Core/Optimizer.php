@@ -74,7 +74,6 @@ class Optimizer {
         if ( ! empty( $this->optimization_method ) ) {
             return $this->optimization_method;
         }
-
         if ( extension_loaded( 'imagick' ) && class_exists( 'Imagick' ) ) {
             $this->optimization_method = 'imagick';
             $this->logger->info( 'Optimization method determined: Imagick' );
@@ -331,65 +330,120 @@ class Optimizer {
      * @param string $file_path Absolute path to the image file.
      * @return bool True on success, false on failure.
      */
-    private function optimize_with_imagick( $file_path ) {
-        if ( ! extension_loaded( 'imagick' ) || ! class_exists( 'Imagick' ) ) {
-            return false;
-        }
-
-        try {
-            $imagick = new \Imagick( realpath( $file_path ) );
-            $format = strtolower( $imagick->getImageFormat() );
-
-            // Only optimize supported formats
-            if ( ! in_array( $format, $this->supported_formats, true ) ) {
-                $imagick->destroy();
-                return false;
-            }
-
-            // Strip metadata
-            $imagick->stripImage();
-
-            // Apply format-specific optimizations
-            switch ( $format ) {
-                case 'jpeg':
-                case 'jpg':
-                    $quality = $this->config->get_quality_for_format( 'jpeg' );
-                    $imagick->setImageCompression( \Imagick::COMPRESSION_JPEG );
-                    $imagick->setImageCompressionQuality( $quality );
-                    $imagick->setInterlaceScheme( \Imagick::INTERLACE_PLANE );
-                    break;
-
-                case 'png':
-                    $quality = $this->config->get_quality_for_format( 'png' );
-                    // PNG optimization with Imagick
-                    $imagick->setImageFormat( 'PNG' );
-                    $imagick->setOption( 'png:compression-level', 9 );
-                    $imagick->setOption( 'png:compression-filter', 5 );
-                    break;
-
-                case 'webp':
-                    $quality = $this->config->get_quality_for_format( 'webp' );
-                    $imagick->setImageFormat( 'WEBP' );
-                    $imagick->setImageCompressionQuality( $quality );
-                    break;
-            }
-
-            // Resize if maximum dimensions are set
-            $this->apply_resize_if_needed( $imagick );
-
-            $result = $imagick->writeImage( $file_path );
-            $imagick->destroy();
-
-            return $result;
-
-        } catch ( \Exception $e ) {
-            $this->logger->error( "Imagick optimization error", [
-                'file' => basename( $file_path ),
-                'error' => $e->getMessage(),
-            ]);
-            return false;
-        }
+private function optimize_with_imagick( $file_path ) {
+    if ( ! extension_loaded( 'imagick' ) || ! class_exists( 'Imagick' ) ) {
+        return false;
     }
+
+    $file_size = filesize( $file_path );
+    if ( $file_size > 5242880 ) { // 5MB limit
+        $this->logger->warning( "File too large for Imagick processing", [
+            'file_size' => FileHelper::format_file_size( $file_size ),
+            'limit' => '5MB'
+        ]);
+        return false;
+    }
+
+    try {
+        putenv( 'MAGICK_THREAD_LIMIT=1' );
+        putenv( 'MAGICK_MEMORY_LIMIT=64MB' );
+        putenv( 'MAGICK_MAP_LIMIT=128MB' );
+        putenv( 'MAGICK_DISK_LIMIT=256MB' );
+        putenv( 'MAGICK_TIME_LIMIT=30' );
+
+        $imagick = new \Imagick( realpath( $file_path ) );
+
+        // Set Imagick resource limits (GitHub issue #1306 solution)
+        $imagick->setResourceLimit( \Imagick::RESOURCETYPE_MEMORY, 64 * 1024 * 1024 ); // 64MB
+        $imagick->setResourceLimit( \Imagick::RESOURCETYPE_MAP, 128 * 1024 * 1024 ); // 128MB
+        $imagick->setResourceLimit( \Imagick::RESOURCETYPE_DISK, 256 * 1024 * 1024 ); // 256MB
+        $imagick->setResourceLimit( \Imagick::RESOURCETYPE_AREA, 25 * 1024 * 1024 ); // 25MP
+        $imagick->setResourceLimit( \Imagick::RESOURCETYPE_FILE, 768 ); // Max 768 files
+
+        $info = @getimagesize( $file_path );
+        if ( $info && $info['mime'] === 'image/jpeg' ) {
+            $max_dimension = max( $info[0], $info[1] );
+            if ( $max_dimension > 2000 ) {
+                $imagick->setOption( 'jpeg:size', '2000x2000' );
+            }
+        }
+
+        $format = strtolower( $imagick->getImageFormat() );
+
+        if ( $format === 'gif' ) {
+            $imagick->destroy();
+            $this->logger->info( "Skipping GIF optimization due to memory concerns" );
+            return false;
+        }
+
+        if ( ! in_array( $format, $this->supported_formats, true ) ) {
+            $imagick->destroy();
+            return false;
+        }
+
+        $imagick->stripImage();
+
+        if ( $imagick->getNumberImages() > 1 && $format !== 'gif' ) {
+            $imagick = $imagick->coalesceImages();
+        }
+
+        switch ( $format ) {
+            case 'jpeg':
+            case 'jpg':
+                $quality = $this->config->get_quality_for_format( 'jpeg' );
+                $imagick->setImageCompression( \Imagick::COMPRESSION_JPEG );
+                $imagick->setImageCompressionQuality( $quality );
+                $imagick->setInterlaceScheme( \Imagick::INTERLACE_PLANE );
+
+                if ( $file_size > 1048576 ) {
+                    $imagick->setInterlaceScheme( \Imagick::INTERLACE_PLANE );
+                }
+                break;
+
+            case 'png':
+                $imagick->setImageFormat( 'PNG' );
+                $imagick->setOption( 'png:compression-level', 9 );
+                $imagick->setOption( 'png:compression-filter', 5 );
+
+                if ( $imagick->getImageType() === \Imagick::IMGTYPE_PALETTE ) {
+                    $imagick->quantizeImage( 256, \Imagick::COLORSPACE_RGB, 0, false, false );
+                }
+                break;
+
+            case 'webp':
+                $quality = $this->config->get_quality_for_format( 'webp' );
+                $imagick->setImageFormat( 'WEBP' );
+                $imagick->setImageCompressionQuality( $quality );
+                break;
+        }
+
+        $this->apply_resize_if_needed( $imagick );
+
+        $result = $imagick->writeImage( $file_path );
+
+        $imagick->destroy();
+
+        if ( function_exists( 'gc_collect_cycles' ) ) {
+            gc_collect_cycles();
+        }
+
+        return $result;
+
+    } catch ( \Exception $e ) {
+        $this->logger->error( "Imagick optimization error", [
+            'file' => basename( $file_path ),
+            'error' => $e->getMessage(),
+            'file_size' => FileHelper::format_file_size( $file_size ),
+        ]);
+
+        if ( isset( $imagick ) && $imagick instanceof \Imagick ) {
+            $imagick->destroy();
+        }
+
+        return false;
+    }
+}
+
 
     /**
      * Optimizes an image using the GD library.
@@ -512,17 +566,29 @@ class Optimizer {
         $current_width = $imagick->getImageWidth();
         $current_height = $imagick->getImageHeight();
 
+        // Calculate memory requirement for resize operation
+        $memory_required = ( $current_width * $current_height * 4 ) / 1024 / 1024; // MB
+
+        if ( $memory_required > 32 ) { // Skip resize if requires >32MB
+            $this->logger->warning( "Skipping resize due to memory requirements", [
+                'memory_required' => round( $memory_required, 2 ) . 'MB',
+                'dimensions' => "{$current_width}x{$current_height}"
+            ]);
+            return;
+        }
+
         if ( ( $max_width > 0 && $current_width > $max_width ) ||
-             ( $max_height > 0 && $current_height > $max_height ) ) {
+            ( $max_height > 0 && $current_height > $max_height ) ) {
 
-            $imagick->resizeImage( $max_width ?: 0, $max_height ?: 0, \Imagick::FILTER_LANCZOS, 1, true );
+            $imagick->thumbnailImage( $max_width ?: 0, $max_height ?: 0, true, true );
 
-            $this->logger->info( "Image resized", [
+            $this->logger->info( "Image resized with Imagick", [
                 'original' => "{$current_width}x{$current_height}",
                 'new' => $imagick->getImageWidth() . 'x' . $imagick->getImageHeight(),
             ]);
         }
     }
+
 
     /**
      * Applies resize if maximum dimensions are configured (GD).

@@ -62,7 +62,7 @@ class ImageHelper {
 
         // Only optimize files larger than 10KB
         $file_size = FileHelper::get_file_size( $file_path );
-        return $file_size > 10240; // 10KB
+        return $file_size > 5120; // 10KB
     }
 
     /**
