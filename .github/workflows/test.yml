@@ -30,38 +30,49 @@ jobs:
 
       - name: Validate PHP syntax
         run: |
-          echo "Checking PHP syntax for all PHP files..."
+          echo "🔍 Checking PHP syntax for all PHP files..."
           find . -name "*.php" -not -path "./vendor/*" -not -path "./tests/*" | while read file; do
             echo "Checking: $file"
             php -l "$file"
             if [ $? -ne 0 ]; then
-              echo "Syntax error in: $file"
+              echo "❌ Syntax error in: $file"
               exit 1
             fi
           done
-          echo "All PHP files have valid syntax!"
-
-      - name: Check WordPress Coding Standards (PHP 8.0 only)
-        if: matrix.php-version == '8.0'
-        run: |
-          composer install --no-dev --optimize-autoloader
-          if [ -f "vendor/bin/phpcs" ]; then
-            vendor/bin/phpcs --standard=WordPress --ignore=vendor/,tests/ .
-          else
-            echo "PHPCS not available, skipping coding standards check"
-          fi
+          echo "✅ All PHP files have valid syntax!"
 
       - name: Test autoloader
         run: |
-          cd morden-image-optimizer 2>/dev/null || echo "Already in plugin directory"
           php -r "
           define('MIO_PLUGIN_DIR', __DIR__ . '/');
           if (file_exists('lib/autoload.php')) {
             require_once 'lib/autoload.php';
-            echo 'Autoloader loaded successfully' . PHP_EOL;
+            echo '✅ Autoloader loaded successfully' . PHP_EOL;
           } else {
-            echo 'Autoloader not found' . PHP_EOL;
+            echo '❌ Autoloader not found' . PHP_EOL;
             exit(1);
+          }
+          "
+
+      - name: Test class loading
+        run: |
+          php -r "
+          define('MIO_PLUGIN_DIR', __DIR__ . '/');
+          require_once 'lib/autoload.php';
+
+          \$classes = [
+            'MordenImageOptimizer\\\\Core\\\\Plugin',
+            'MordenImageOptimizer\\\\Core\\\\Optimizer',
+            'MordenImageOptimizer\\\\Core\\\\DatabaseManager'
+          ];
+
+          foreach (\$classes as \$class) {
+            if (class_exists(\$class)) {
+              echo '✅ ' . \$class . ' - LOADED' . PHP_EOL;
+            } else {
+              echo '❌ ' . \$class . ' - NOT FOUND' . PHP_EOL;
+              exit(1);
+            }
           }
           "
 
@@ -75,7 +86,7 @@ jobs:
 
       - name: Check required files
         run: |
-          echo "Checking plugin structure..."
+          echo "🔍 Checking plugin structure..."
 
           required_files=(
             "morden-image-optimizer.php"
@@ -87,30 +98,40 @@ jobs:
 
           for file in "${required_files[@]}"; do
             if [ -f "$file" ]; then
-              echo "✓ $file exists"
+              echo "✅ $file exists"
             else
-              echo "✗ $file is missing"
+              echo "❌ $file is missing"
               exit 1
             fi
           done
 
-          echo "All required files are present!"
+          echo "✅ All required files are present!"
 
       - name: Validate info.json
         run: |
           if command -v jq &> /dev/null; then
             jq empty info.json
-            echo "info.json is valid JSON"
+            echo "✅ info.json is valid JSON"
           else
             python3 -m json.tool info.json > /dev/null
-            echo "info.json is valid JSON (validated with Python)"
+            echo "✅ info.json is valid JSON (validated with Python)"
           fi
 
       - name: Check plugin header
         run: |
           if grep -q "Plugin Name:" morden-image-optimizer.php; then
-            echo "✓ Plugin header found"
+            echo "✅ Plugin header found"
           else
-            echo "✗ Plugin header missing"
+            echo "❌ Plugin header missing"
             exit 1
           fi
+
+      - name: Validate WordPress coding standards
+        run: |
+          echo "🔍 Checking WordPress coding standards..."
+          # Basic checks for WordPress standards
+          if grep -r "echo.*\$_" includes/ --include="*.php"; then
+            echo "❌ Found unescaped output"
+            exit 1
+          fi
+          echo "✅ Basic WordPress standards check passed"

@@ -1,4 +1,4 @@
-name: Create Release and Update info.json
+name: Create Release
 
 on:
   push:
@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get version from tag
         id: get_version
@@ -30,7 +30,6 @@ jobs:
 
       - name: Create plugin zip
         run: |
-          # Create a clean copy without development files
           mkdir -p build
           rsync -av --exclude-from=.gitignore \
             --exclude='.git*' \
@@ -44,34 +43,42 @@ jobs:
             . build/morden-image-optimizer/
 
           cd build
-          zip -r morden-image-optimizer.zip morden-image-optimizer/
+          zip -r morden-image-optimizer-v${{ steps.get_version.outputs.VERSION }}.zip morden-image-optimizer/
 
       - name: Generate changelog
         id: changelog
         run: |
-          CHANGELOG=$(cat << 'EOF'
-          ## What's New in v${{ steps.get_version.outputs.VERSION }}
+          cat > CHANGELOG.md << 'EOF'
+          ## 🚀 What's New in v${{ steps.get_version.outputs.VERSION }}
 
-          ### 🚀 Features
-          - Automatic image optimization on upload
-          - Bulk optimization for existing images
-          - Original image backup and restore
-          - Support for multiple optimization methods (Imagick, GD, APIs)
+          ### ✨ New Features
+          - Optimized Imagick processing with resource limits
+          - Smart file size routing (>5MB to API)
+          - Enhanced error handling and logging
+          - Improved server stability
+
+          ### 🐛 Bug Fixes
+          - Fixed 503 errors with large image processing
+          - Resolved database table creation issues
+          - Fixed JavaScript AJAX errors
+          - Improved memory management
 
           ### 🔧 Technical Improvements
-          - Enhanced error handling and logging
-          - Improved performance monitoring
-          - Better security implementation
+          - Added garbage collection after image processing
+          - Implemented file size thresholds
+          - Enhanced logging control options
+          - Better resource limit management
 
           ### 📦 Installation
           1. Download the plugin zip file below
           2. Upload to WordPress via Plugins > Add New > Upload Plugin
           3. Activate and configure in Settings > Morden Optimizer
+
+          ### 🔄 Upgrade Notes
+          - Automatic database migration included
+          - Settings preserved during update
+          - Backup recommended before upgrade
           EOF
-          )
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Release
         id: create_release
@@ -81,7 +88,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Morden Image Optimizer v${{ steps.get_version.outputs.VERSION }}
-          body: ${{ steps.changelog.outputs.CHANGELOG }}
+          body_path: CHANGELOG.md
           draft: false
           prerelease: false
 
@@ -91,21 +98,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/morden-image-optimizer.zip
-          asset_name: morden-image-optimizer.zip
+          asset_path: ./build/morden-image-optimizer-v${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: morden-image-optimizer-v${{ steps.get_version.outputs.VERSION }}.zip
           asset_content_type: application/zip
 
       - name: Update info.json
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
-          DOWNLOAD_URL="https://github.com/sadewadee/morden-image-optimizer/releases/download/v${VERSION}/morden-image-optimizer.zip"
+          DOWNLOAD_URL="https://github.com/sadewadee/morden-image-optimizer/releases/download/v${VERSION}/morden-image-optimizer-v${VERSION}.zip"
 
-          # Check if jq is available, install if not
-          if ! command -v jq &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y jq
-          fi
-
-          # Update info.json
           jq --arg version "$VERSION" \
              --arg download_url "$DOWNLOAD_URL" \
              '.version = $version | .download_url = $download_url' \
