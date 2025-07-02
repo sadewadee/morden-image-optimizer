@@ -60,10 +60,9 @@ class ReSmushItClient implements APIClientInterface {
         $args = [
             'method'    => 'POST',
             'timeout'   => 30,
-            'headers'   => [
-                'User-Agent' => 'Morden Image Optimizer/' . MIO_VERSION . '; ' . get_bloginfo( 'url' ),
-                'Accept'     => 'application/json',
-            ],
+            'headers'   => ['User-Agent' => 'WordPress ' . get_bloginfo('version') . '/Morden Image Optimizer ' . MIO_VERSION . ' - ' . get_bloginfo('url'),
+            'Accept'     => 'application/json',
+        ],
             'body'      => [
                 'img'  => $image_url,
                 'qlty' => $quality,

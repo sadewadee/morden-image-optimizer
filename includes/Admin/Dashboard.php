@@ -36,7 +36,7 @@ class Dashboard {
 
         wp_add_dashboard_widget(
             'mio_dashboard_stats',
-            __( 'Image Optimization Stats', 'morden_optimizer' ),
+            __( 'Image Optimization Stats', 'morden-image-optimize' ),
             [ $this, 'render_dashboard_widget' ]
         );
     }
@@ -59,17 +59,17 @@ class Dashboard {
             <div class="mio-stats-grid">
                 <div class="mio-stat-item">
                     <span class="mio-stat-number"><?php echo esc_html( number_format( $stats['total_optimizations'] ) ); ?></span>
-                    <span class="mio-stat-label"><?php esc_html_e( 'Images Optimized', 'morden_optimizer' ); ?></span>
+                    <span class="mio-stat-label"><?php esc_html_e( 'Images Optimized', 'morden-image-optimize' ); ?></span>
                 </div>
                 <div class="mio-stat-item">
                     <span class="mio-stat-number"><?php echo esc_html( FileHelper::format_file_size( $stats['total_savings'] ) ); ?></span>
-                    <span class="mio-stat-label"><?php esc_html_e( 'Space Saved', 'morden_optimizer' ); ?></span>
+                    <span class="mio-stat-label"><?php esc_html_e( 'Space Saved', 'morden-image-optimize' ); ?></span>
                 </div>
             </div>
 
             <?php if ( ! empty( $recent_optimizations ) ) : ?>
                 <div class="mio-recent-optimizations">
-                    <h4><?php esc_html_e( 'Recent Optimizations', 'morden_optimizer' ); ?></h4>
+                    <h4><?php esc_html_e( 'Recent Optimizations', 'morden-image-optimize' ); ?></h4>
                     <ul>
                         <?php foreach ( $recent_optimizations as $optimization ) : ?>
                             <li>
@@ -84,10 +84,10 @@ class Dashboard {
 
             <div class="mio-widget-actions">
                 <a href="<?php echo esc_url( admin_url( 'upload.php?page=mio-bulk-optimize' ) ); ?>" class="button button-primary">
-                    <?php esc_html_e( 'Bulk Optimize', 'morden_optimizer' ); ?>
+                    <?php esc_html_e( 'Bulk Optimize', 'morden-image-optimize' ); ?>
                 </a>
                 <a href="<?php echo esc_url( admin_url( 'options-general.php?page=mio-dashboard' ) ); ?>" class="button button-secondary">
-                    <?php esc_html_e( 'View Details', 'morden_optimizer' ); ?>
+                    <?php esc_html_e( 'View Details', 'morden-image-optimize' ); ?>
                 </a>
             </div>
         </div>
@@ -111,7 +111,7 @@ class Dashboard {
 
     public function render_dashboard_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'morden_optimizer' ) );
+            wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'morden-image-optimize' ) );
         }
 
         $stats = $this->get_optimization_stats();
@@ -121,53 +121,53 @@ class Dashboard {
 
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Morden Image Optimizer Dashboard', 'morden_optimizer' ); ?></h1>
+            <h1><?php esc_html_e( 'Morden Image Optimizer Dashboard', 'morden-image-optimize' ); ?></h1>
 
             <div class="mio-dashboard-container">
                 <div class="mio-dashboard-main">
                     <div class="mio-stats-overview">
                         <div class="mio-stat-card large">
-                            <h3><?php esc_html_e( 'Total Optimizations', 'morden_optimizer' ); ?></h3>
+                            <h3><?php esc_html_e( 'Total Optimizations', 'morden-image-optimize' ); ?></h3>
                             <span class="mio-stat-number"><?php echo esc_html( number_format( $stats['total_optimizations'] ) ); ?></span>
                             <span class="mio-stat-change">
-                                <?php printf( esc_html__( '%d successful, %d failed', 'morden_optimizer' ), $stats['successful_optimizations'], $stats['failed_optimizations'] ); ?>
+                                <?php printf( esc_html__( '%d successful, %d failed', 'morden-image-optimize' ), $stats['successful_optimizations'], $stats['failed_optimizations'] ); ?>
                             </span>
                         </div>
 
                         <div class="mio-stat-card large">
-                            <h3><?php esc_html_e( 'Total Savings', 'morden_optimizer' ); ?></h3>
+                            <h3><?php esc_html_e( 'Total Savings', 'morden-image-optimize' ); ?></h3>
                             <span class="mio-stat-number"><?php echo esc_html( FileHelper::format_file_size( $stats['total_savings'] ) ); ?></span>
                             <span class="mio-stat-change">
-                                <?php printf( esc_html__( 'Average: %s per image', 'morden_optimizer' ), FileHelper::format_file_size( $stats['average_savings'] ) ); ?>
+                                <?php printf( esc_html__( 'Average: %s per image', 'morden-image-optimize' ), FileHelper::format_file_size( $stats['average_savings'] ) ); ?>
                             </span>
                         </div>
 
                         <div class="mio-stat-card">
-                            <h3><?php esc_html_e( 'Backup Files', 'morden_optimizer' ); ?></h3>
+                            <h3><?php esc_html_e( 'Backup Files', 'morden-image-optimize' ); ?></h3>
                             <span class="mio-stat-number"><?php echo esc_html( number_format( $backup_stats['total_files'] ) ); ?></span>
                             <span class="mio-stat-change"><?php echo esc_html( FileHelper::format_file_size( $backup_stats['total_size'] ) ); ?></span>
                         </div>
 
                         <div class="mio-stat-card">
-                            <h3><?php esc_html_e( 'Optimization Method', 'morden_optimizer' ); ?></h3>
+                            <h3><?php esc_html_e( 'Optimization Method', 'morden-image-optimize' ); ?></h3>
                             <span class="mio-stat-text"><?php echo esc_html( ucfirst( $system_info['optimization_method'] ) ); ?></span>
                             <span class="mio-stat-change"><?php echo esc_html( $system_info['method_description'] ); ?></span>
                         </div>
                     </div>
 
                     <div class="mio-dashboard-section">
-                        <h2><?php esc_html_e( 'Recent Activity', 'morden_optimizer' ); ?></h2>
+                        <h2><?php esc_html_e( 'Recent Activity', 'morden-image-optimize' ); ?></h2>
 
                         <?php if ( ! empty( $recent_optimizations ) ) : ?>
                             <div class="mio-recent-table">
                                 <table class="wp-list-table widefat fixed striped">
                                     <thead>
                                         <tr>
-                                            <th><?php esc_html_e( 'Image', 'morden_optimizer' ); ?></th>
-                                            <th><?php esc_html_e( 'Method', 'morden_optimizer' ); ?></th>
-                                            <th><?php esc_html_e( 'Savings', 'morden_optimizer' ); ?></th>
-                                            <th><?php esc_html_e( 'Status', 'morden_optimizer' ); ?></th>
-                                            <th><?php esc_html_e( 'Date', 'morden_optimizer' ); ?></th>
+                                            <th><?php esc_html_e( 'Image', 'morden-image-optimize' ); ?></th>
+                                            <th><?php esc_html_e( 'Method', 'morden-image-optimize' ); ?></th>
+                                            <th><?php esc_html_e( 'Savings', 'morden-image-optimize' ); ?></th>
+                                            <th><?php esc_html_e( 'Status', 'morden-image-optimize' ); ?></th>
+                                            <th><?php esc_html_e( 'Date', 'morden-image-optimize' ); ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -197,9 +197,9 @@ class Dashboard {
                             </div>
                         <?php else : ?>
                             <div class="mio-empty-state">
-                                <p><?php esc_html_e( 'No optimizations yet. Start by optimizing some images!', 'morden_optimizer' ); ?></p>
+                                <p><?php esc_html_e( 'No optimizations yet. Start by optimizing some images!', 'morden-image-optimize' ); ?></p>
                                 <a href="<?php echo esc_url( admin_url( 'upload.php?page=mio-bulk-optimize' ) ); ?>" class="button button-primary">
-                                    <?php esc_html_e( 'Start Bulk Optimization', 'morden_optimizer' ); ?>
+                                    <?php esc_html_e( 'Start Bulk Optimization', 'morden-image-optimize' ); ?>
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -208,48 +208,48 @@ class Dashboard {
 
                 <div class="mio-dashboard-sidebar">
                     <div class="mio-info-box">
-                        <h3><?php esc_html_e( 'System Information', 'morden_optimizer' ); ?></h3>
+                        <h3><?php esc_html_e( 'System Information', 'morden-image-optimize' ); ?></h3>
                         <table class="mio-info-table">
                             <tr>
-                                <td><?php esc_html_e( 'Plugin Version:', 'morden_optimizer' ); ?></td>
+                                <td><?php esc_html_e( 'Plugin Version:', 'morden-image-optimize' ); ?></td>
                                 <td><?php echo esc_html( MIO_VERSION ); ?></td>
                             </tr>
                             <tr>
-                                <td><?php esc_html_e( 'Optimization Method:', 'morden_optimizer' ); ?></td>
+                                <td><?php esc_html_e( 'Optimization Method:', 'morden-image-optimize' ); ?></td>
                                 <td><?php echo esc_html( ucfirst( $system_info['optimization_method'] ) ); ?></td>
                             </tr>
                             <tr>
-                                <td><?php esc_html_e( 'Backup Enabled:', 'morden_optimizer' ); ?></td>
+                                <td><?php esc_html_e( 'Backup Enabled:', 'morden-image-optimize' ); ?></td>
                                 <td><?php echo $this->config->is_enabled( 'keep_original' ) ? '✅' : '❌'; ?></td>
                             </tr>
                             <tr>
-                                <td><?php esc_html_e( 'Auto Optimization:', 'morden_optimizer' ); ?></td>
+                                <td><?php esc_html_e( 'Auto Optimization:', 'morden-image-optimize' ); ?></td>
                                 <td><?php echo $this->config->is_enabled( 'auto_optimize' ) ? '✅' : '❌'; ?></td>
                             </tr>
                         </table>
                     </div>
 
                     <div class="mio-info-box">
-                        <h3><?php esc_html_e( 'Quick Actions', 'morden_optimizer' ); ?></h3>
+                        <h3><?php esc_html_e( 'Quick Actions', 'morden-image-optimize' ); ?></h3>
                         <div class="mio-action-buttons">
                             <a href="<?php echo esc_url( admin_url( 'upload.php?page=mio-bulk-optimize' ) ); ?>" class="button button-primary">
-                                <?php esc_html_e( 'Bulk Optimize', 'morden_optimizer' ); ?>
+                                <?php esc_html_e( 'Bulk Optimize', 'morden-image-optimize' ); ?>
                             </a>
                             <a href="<?php echo esc_url( admin_url( 'options-general.php?page=morden_optimizer' ) ); ?>" class="button button-secondary">
-                                <?php esc_html_e( 'Settings', 'morden_optimizer' ); ?>
+                                <?php esc_html_e( 'Settings', 'morden-image-optimize' ); ?>
                             </a>
                             <a href="<?php echo esc_url( admin_url( 'upload.php' ) ); ?>" class="button button-secondary">
-                                <?php esc_html_e( 'Media Library', 'morden_optimizer' ); ?>
+                                <?php esc_html_e( 'Media Library', 'morden-image-optimize' ); ?>
                             </a>
                         </div>
                     </div>
 
                     <?php if ( $backup_stats['total_files'] > 0 ) : ?>
                         <div class="mio-info-box">
-                            <h3><?php esc_html_e( 'Backup Management', 'morden_optimizer' ); ?></h3>
-                            <p><?php printf( esc_html__( 'You have %d backup files using %s of storage.', 'morden_optimizer' ), $backup_stats['total_files'], FileHelper::format_file_size( $backup_stats['total_size'] ) ); ?></p>
+                            <h3><?php esc_html_e( 'Backup Management', 'morden-image-optimize' ); ?></h3>
+                            <p><?php printf( esc_html__( 'You have %d backup files using %s of storage.', 'morden-image-optimize' ), $backup_stats['total_files'], FileHelper::format_file_size( $backup_stats['total_size'] ) ); ?></p>
                             <button type="button" class="button button-secondary mio-cleanup-backups">
-                                <?php esc_html_e( 'Cleanup Old Backups', 'morden_optimizer' ); ?>
+                                <?php esc_html_e( 'Cleanup Old Backups', 'morden-image-optimize' ); ?>
                             </button>
                         </div>
                     <?php endif; ?>
@@ -328,14 +328,14 @@ class Dashboard {
         $method = $optimizer->get_optimization_method();
 
         $descriptions = [
-            'imagick' => __( 'Best quality optimization', 'morden_optimizer' ),
-            'gd' => __( 'Good quality optimization', 'morden_optimizer' ),
-            'api' => __( 'External API optimization', 'morden_optimizer' ),
+            'imagick' => __( 'Best quality optimization', 'morden-image-optimize' ),
+            'gd' => __( 'Good quality optimization', 'morden-image-optimize' ),
+            'api' => __( 'External API optimization', 'morden-image-optimize' ),
         ];
 
         return [
             'optimization_method' => $method,
-            'method_description' => $descriptions[ $method ] ?? __( 'Unknown method', 'morden_optimizer' ),
+            'method_description' => $descriptions[ $method ] ?? __( 'Unknown method', 'morden-image-optimize' ),
         ];
     }
 }

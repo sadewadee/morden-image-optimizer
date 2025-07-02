@@ -69,9 +69,9 @@ class Onboarding {
         <div class="notice notice-info mio-welcome-notice" data-notice="welcome">
             <div class="mio-welcome-content">
                 <div class="mio-welcome-header">
-                    <h2><?php esc_html_e( '🚀 Welcome to Morden Image Optimizer!', 'morden_optimizer' ); ?></h2>
+                    <h2><?php esc_html_e( '🚀 Welcome to Morden Image Optimizer!', 'morden-image-optimize' ); ?></h2>
                     <button type="button" class="notice-dismiss mio-dismiss-notice" data-notice="welcome">
-                        <span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 'morden_optimizer' ); ?></span>
+                        <span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 'morden-image-optimize' ); ?></span>
                     </button>
                 </div>
 
@@ -80,7 +80,7 @@ class Onboarding {
                         <div class="mio-progress-fill" style="width: <?php echo esc_attr( ( $completed_count / $total_steps ) * 100 ); ?>%"></div>
                     </div>
                     <span class="mio-progress-text">
-                        <?php printf( esc_html__( '%d of %d setup steps completed', 'morden_optimizer' ), $completed_count, $total_steps ); ?>
+                        <?php printf( esc_html__( '%d of %d setup steps completed', 'morden-image-optimize' ), $completed_count, $total_steps ); ?>
                     </span>
                 </div>
 
@@ -112,10 +112,10 @@ class Onboarding {
 
                 <div class="mio-welcome-actions">
                     <a href="<?php echo esc_url( admin_url( 'upload.php?page=mio-bulk-optimize' ) ); ?>" class="button button-primary">
-                        <?php esc_html_e( 'Start Optimizing Images', 'morden_optimizer' ); ?>
+                        <?php esc_html_e( 'Start Optimizing Images', 'morden-image-optimize' ); ?>
                     </a>
                     <a href="<?php echo esc_url( admin_url( 'options-general.php?page=morden_optimizer' ) ); ?>" class="button button-secondary">
-                        <?php esc_html_e( 'View Settings', 'morden_optimizer' ); ?>
+                        <?php esc_html_e( 'View Settings', 'morden-image-optimize' ); ?>
                     </a>
                 </div>
             </div>
@@ -161,20 +161,20 @@ class Onboarding {
         ?>
         <div class="notice notice-info mio-setup-notice" data-notice="setup">
             <p>
-                <strong><?php esc_html_e( 'Morden Image Optimizer', 'morden_optimizer' ); ?></strong> -
+                <strong><?php esc_html_e( 'Morden Image Optimizer', 'morden-image-optimize' ); ?></strong> -
                 <?php
                 printf(
-                    esc_html__( 'You have %d images that could be optimized. %s', 'morden_optimizer' ),
+                    esc_html__( 'You have %d images that could be optimized. %s', 'morden-image-optimize' ),
                     $stats['unoptimized_count'],
                     sprintf(
                         '<a href="%s">%s</a>',
                         esc_url( admin_url( 'upload.php?page=mio-bulk-optimize' ) ),
-                        esc_html__( 'Start optimizing now', 'morden_optimizer' )
+                        esc_html__( 'Start optimizing now', 'morden-image-optimize' )
                     )
                 );
                 ?>
                 <button type="button" class="notice-dismiss mio-dismiss-notice" data-notice="setup">
-                    <span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 'morden_optimizer' ); ?></span>
+                    <span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 'morden-image-optimize' ); ?></span>
                 </button>
             </p>
         </div>
@@ -242,36 +242,41 @@ class Onboarding {
         return [
             'check_server' => [
                 'order' => 1,
-                'title' => __( 'Server Compatibility Check', 'morden_optimizer' ),
-                'description' => sprintf( __( 'Your server is using %s for optimization.', 'morden_optimizer' ), ucfirst( $method ) ),
+                'title' => __( 'Server Compatibility Check', 'morden-image-optimize' ),
+                'description' => sprintf( __( 'Your server is using %s for optimization.', 'morden-image-optimize' ), ucfirst( $method ) ),
                 'action' => 'mark_completed',
-                'button_text' => __( 'Mark as Complete', 'morden_optimizer' ),
+                'button_text' => __( 'Mark as Complete', 'morden-image-optimize' ),
             ],
             'configure_settings' => [
                 'order' => 2,
-                'title' => __( 'Configure Settings', 'morden_optimizer' ),
-                'description' => __( 'Review and adjust optimization settings to match your needs.', 'morden_optimizer' ),
+                'title' => __( 'Configure Settings', 'morden-image-optimize' ),
+                'description' => __( 'Review and adjust optimization settings to match your needs.', 'morden-image-optimize' ),
                 'action' => 'open_settings',
-                'button_text' => __( 'Open Settings', 'morden_optimizer' ),
+                'button_text' => __( 'Open Settings', 'morden-image-optimize' ),
             ],
             'enable_backup' => [
                 'order' => 3,
-                'title' => __( 'Enable Backup (Recommended)', 'morden_optimizer' ),
-                'description' => __( 'Keep original images safe by enabling backup functionality.', 'morden_optimizer' ),
+                'title' => __( 'Enable Backup (Recommended)', 'morden-image-optimize' ),
+                'description' => __( 'Keep original images safe by enabling backup functionality.', 'morden-image-optimize' ),
                 'action' => 'enable_backup',
-                'button_text' => __( 'Enable Backup', 'morden_optimizer' ),
+                'button_text' => __( 'Enable Backup', 'morden-image-optimize' ),
             ],
             'test_optimization' => [
                 'order' => 4,
-                'title' => __( 'Test Optimization', 'morden_optimizer' ),
-                'description' => __( 'Run a test optimization to ensure everything works correctly.', 'morden_optimizer' ),
+                'title' => __( 'Test Optimization', 'morden-image-optimize' ),
+                'description' => __( 'Run a test optimization to ensure everything works correctly.', 'morden-image-optimize' ),
                 'action' => 'run_test',
-                'button_text' => __( 'Run Test', 'morden_optimizer' ),
+                'button_text' => __( 'Run Test', 'morden-image-optimize' ),
             ],
         ];
     }
 
     private function get_quick_stats() {
+        $stats = get_transient( 'mio_quick_stats' );
+        if ( false !== $stats ) {
+            return $stats;
+        }
+
         global $wpdb;
 
         $total_images = $wpdb->get_var( "
@@ -293,11 +298,16 @@ class Onboarding {
             AND pm.meta_value = '1'
         " );
 
-        return [
+        $stats = [
             'total_count' => (int) $total_images,
             'optimized_count' => (int) $optimized_images,
             'unoptimized_count' => max( 0, (int) $total_images - (int) $optimized_images ),
         ];
+
+        // Cache for 15 minutes
+        set_transient( 'mio_quick_stats', $stats, 15 * MINUTE_IN_SECONDS );
+
+        return $stats;
     }
 
     public function enqueue_onboarding_assets() {
@@ -325,7 +335,7 @@ class Onboarding {
         $this->config->set( 'keep_original', true );
 
         wp_send_json_success([
-            'message' => __( 'Backup enabled successfully.', 'morden_optimizer' ),
+            'message' => __( 'Backup enabled successfully.', 'morden-image-optimize' ),
         ]);
     }
 
@@ -334,7 +344,7 @@ class Onboarding {
 
         // Simulate a test optimization
         wp_send_json_success([
-            'message' => __( 'Test optimization completed successfully.', 'morden_optimizer' ),
+            'message' => __( 'Test optimization completed successfully.', 'morden-image-optimize' ),
         ]);
     }
 }

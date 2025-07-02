@@ -56,17 +56,34 @@ class TinyPNGClient implements APIClientInterface {
             return false;
         }
 
-        // For now, we'll implement a basic version without the Tinify SDK
-        // In a real implementation, you would use the Tinify PHP SDK
-        $api_key = $this->config->get( 'tinypng_api_key' );
+        try {
+            $api_key = $this->config->get( 'tinypng_api_key' );
+            \Tinify\setKey( $api_key );
 
-        $this->logger->info( 'TinyPNG optimization attempted', [
-            'file' => basename( $file_path ),
-            'note' => 'Tinify SDK integration needed for full functionality',
-        ]);
+            \Tinify\validate();
 
-        // Placeholder implementation - in real usage, integrate with Tinify SDK
-        return false;
+            $this->logger->info( 'Optimizing with TinyPNG API', [
+                'file' => basename( $file_path ),
+            ]);
+
+            $source = \Tinify\fromFile( $file_path );
+            $source->toFile( $file_path );
+
+            $compression_count = \Tinify\getCompressionCount();
+            if ( ! is_null( $compression_count ) ) {
+                update_option( 'mio_tinypng_compression_count', $compression_count );
+            }
+
+            return true;
+
+        } catch ( \Tinify\Exception $e ) {
+            $this->logger->error( 'TinyPNG API optimization failed', [
+                'file' => basename( $file_path ),
+                'error' => $e->getMessage(),
+                'status' => property_exists($e, 'status') ? $e->status : 'N/A',
+            ]);
+            return false;
+        }
     }
 
     /**

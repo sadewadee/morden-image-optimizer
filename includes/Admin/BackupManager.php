@@ -112,6 +112,11 @@ class BackupManager {
         if ( copy( $backup_path, $current_path ) ) {
             $this->clear_optimization_metadata( $attachment_id );
 
+            // Invalidate stats caches
+            delete_transient( 'mio_optimization_stats' );
+            delete_transient( 'mio_quick_stats' );
+            delete_transient( 'mio_bulk_optimizer_stats' );
+
             wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $current_path ) );
 
             $this->logger->info( 'Image restored successfully', [
@@ -133,17 +138,17 @@ class BackupManager {
 
     public function handle_restore_action() {
         if ( ! Security::check_permissions( 'upload_files' ) ) {
-            wp_die( esc_html__( 'You do not have permission to perform this action.', 'morden_optimizer' ) );
+            wp_die( esc_html__( 'You do not have permission to perform this action.', 'morden-image-optimize' ) );
         }
 
         $nonce = isset( $_GET['_wpnonce'] ) ? sanitize_key( $_GET['_wpnonce'] ) : '';
         if ( ! Security::verify_nonce( $nonce, 'restore_image' ) ) {
-            wp_die( esc_html__( 'Security check failed.', 'morden_optimizer' ) );
+            wp_die( esc_html__( 'Security check failed.', 'morden-image-optimize' ) );
         }
 
         $attachment_id = isset( $_GET['attachment_id'] ) ? absint( $_GET['attachment_id'] ) : 0;
         if ( ! $attachment_id ) {
-            wp_die( esc_html__( 'Invalid attachment ID.', 'morden_optimizer' ) );
+            wp_die( esc_html__( 'Invalid attachment ID.', 'morden-image-optimize' ) );
         }
 
         $restored = $this->restore_image_file( $attachment_id );
@@ -168,7 +173,7 @@ class BackupManager {
 
         if ( ! wp_attachment_is_image( $attachment_id ) ) {
             wp_send_json_error( [
-                'message' => __( 'Invalid attachment or not an image.', 'morden_optimizer' ),
+                'message' => __( 'Invalid attachment or not an image.', 'morden-image-optimize' ),
             ]);
         }
 
@@ -176,11 +181,11 @@ class BackupManager {
 
         if ( $restored ) {
             wp_send_json_success( [
-                'message' => __( 'Image restored successfully.', 'morden_optimizer' ),
+                'message' => __( 'Image restored successfully.', 'morden-image-optimize' ),
             ]);
         } else {
             wp_send_json_error( [
-                'message' => __( 'Failed to restore image.', 'morden_optimizer' ),
+                'message' => __( 'Failed to restore image.', 'morden-image-optimize' ),
             ]);
         }
     }
@@ -191,7 +196,7 @@ class BackupManager {
         $cleaned = $this->cleanup_old_backups();
 
         wp_send_json_success( [
-            'message' => sprintf( __( 'Cleaned up %d old backup files.', 'morden_optimizer' ), $cleaned ),
+            'message' => sprintf( __( 'Cleaned up %d old backup files.', 'morden-image-optimize' ), $cleaned ),
             'cleaned_count' => $cleaned,
         ]);
     }
@@ -268,6 +273,10 @@ class BackupManager {
         ];
     }
 
+    public function get_backup_dir() {
+        return $this->backup_dir;
+    }
+
     private function ensure_backup_directory() {
         if ( ! is_dir( $this->backup_dir ) ) {
             wp_mkdir_p( $this->backup_dir );
@@ -277,7 +286,7 @@ class BackupManager {
         }
     }
 
-    private function get_relative_upload_path( $file_path ) {
+    public function get_relative_upload_path( $file_path ) {
         $upload_dir = wp_get_upload_dir();
         return str_replace( $upload_dir['basedir'] . '/', '', $file_path );
     }

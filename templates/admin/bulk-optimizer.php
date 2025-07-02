@@ -1,10 +1,10 @@
 <!-- File: templates/admin/bulk-optimizer.php -->
 <div class="wrap">
-    <h1><?php esc_html_e( 'Bulk Optimize Images', 'morden_optimizer' ); ?></h1>
+    <h1><?php esc_html_e( 'Bulk Optimize Images', 'morden-image-optimize' ); ?></h1>
 
     <div class="mio-bulk-optimizer-container">
         <button id="mio-start-bulk-optimization" class="button button-primary">
-            <?php esc_html_e( 'Start Optimization', 'morden_optimizer' ); ?>
+            <?php esc_html_e( 'Start Optimization', 'morden-image-optimize' ); ?>
         </button>
 
         <div class="mio-progress-container" style="display: none;">

@@ -10,7 +10,7 @@
  * Author URI:        https://mordenhost.com
  * License:           GPL v3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
- * Text Domain:       morden_optimizer
+ * Text Domain:       morden-image-optimizer
  * Domain Path:       /languages
  * Network:           false
  * Update URI:        https://github.com/sadewadee/morden-image-optimizer

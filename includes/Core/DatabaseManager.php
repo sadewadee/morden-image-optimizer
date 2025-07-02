@@ -192,6 +192,12 @@ class DatabaseManager {
      * @return array Array of statistics.
      */
     public function get_optimization_stats() {
+        $stats = get_transient( 'mio_optimization_stats' );
+        if ( false !== $stats && is_array( $stats ) ) {
+            // Ensure all keys exist to prevent errors with older cache formats
+            $default_keys = [ 'total_optimizations' => 0, 'total_savings' => 0, 'average_savings' => 0, 'successful_optimizations' => 0, 'failed_optimizations' => 0 ];
+            return wp_parse_args( $stats, $default_keys );
+        }
         $log_table = $this->wpdb->prefix . 'mio_optimization_log';
 
         $stats = $this->wpdb->get_row( "
@@ -204,13 +210,18 @@ class DatabaseManager {
             FROM $log_table
         ", ARRAY_A );
 
-        return $stats ?: [
+        $stats = $stats && is_array($stats) ? $stats : [
             'total_optimizations' => 0,
             'total_savings' => 0,
             'average_savings' => 0,
             'successful_optimizations' => 0,
             'failed_optimizations' => 0
         ];
+
+        // Cache for 10 minutes
+        set_transient( 'mio_optimization_stats', $stats, 10 * MINUTE_IN_SECONDS );
+
+        return $stats;
     }
 
     /**
@@ -244,6 +255,11 @@ class DatabaseManager {
                 'Failed to log optimization',
                 [ 'attachment_id' => $attachment_id, 'wpdb_error' => $this->wpdb->last_error ]
             );
+        } else {
+            // Invalidate stats cache
+            delete_transient( 'mio_optimization_stats' );
+            delete_transient( 'mio_quick_stats' );
+            delete_transient( 'mio_bulk_optimizer_stats' );
         }
 
         return $result ? $this->wpdb->insert_id : false;

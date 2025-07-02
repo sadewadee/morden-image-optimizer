@@ -36,7 +36,7 @@ class MediaLibrary {
             $new_columns[ $key ] = $value;
 
             if ( 'title' === $key ) {
-                $new_columns['mio_optimization'] = __( 'Optimization', 'morden_optimizer' );
+                $new_columns['mio_optimization'] = __( 'Optimization', 'morden-image-optimize' );
             }
         }
 
@@ -49,7 +49,7 @@ class MediaLibrary {
         }
 
         if ( ! wp_attachment_is_image( $attachment_id ) ) {
-            echo '<span class="mio-status-na">' . esc_html__( 'N/A', 'morden_optimizer' ) . '</span>';
+            echo '<span class="mio-status-na">' . esc_html__( 'N/A', 'morden-image-optimize' ) . '</span>';
             return;
         }
 
@@ -57,7 +57,7 @@ class MediaLibrary {
         $file_path = get_attached_file( $attachment_id );
 
         if ( ! $file_path || ! file_exists( $file_path ) ) {
-            echo '<span class="mio-status-error">' . esc_html__( 'File Missing', 'morden_optimizer' ) . '</span>';
+            echo '<span class="mio-status-error">' . esc_html__( 'File Missing', 'morden-image-optimize' ) . '</span>';
             return;
         }
 
@@ -78,10 +78,10 @@ class MediaLibrary {
         $percentage = ImageHelper::calculate_savings_percentage( $original_size, $optimized_size );
 
         echo '<div class="mio-optimization-status mio-status-optimized">';
-        echo '<span class="mio-status-badge mio-optimized">' . esc_html__( 'Optimized', 'morden_optimizer' ) . '</span>';
+        echo '<span class="mio-status-badge mio-optimized">' . esc_html__( 'Optimized', 'morden-image-optimize' ) . '</span>';
         echo '<div class="mio-optimization-details">';
-        echo '<div class="mio-savings">' . sprintf( esc_html__( 'Saved: %s (%s%%)', 'morden_optimizer' ), $savings_formatted, $percentage ) . '</div>';
-        echo '<div class="mio-method">' . sprintf( esc_html__( 'Method: %s', 'morden_optimizer' ), ucfirst( $method ) ) . '</div>';
+        echo '<div class="mio-savings">' . sprintf( esc_html__( 'Saved: %s (%s%%)', 'morden-image-optimize' ), $savings_formatted, $percentage ) . '</div>';
+        echo '<div class="mio-method">' . sprintf( esc_html__( 'Method: %s', 'morden-image-optimize' ), ucfirst( $method ) ) . '</div>';
         echo '</div>';
 
         echo '<div class="mio-actions">';
@@ -100,9 +100,9 @@ class MediaLibrary {
         $file_size = FileHelper::get_file_size( $file_path );
 
         echo '<div class="mio-optimization-status mio-status-pending">';
-        echo '<span class="mio-status-badge mio-pending">' . esc_html__( 'Not Optimized', 'morden_optimizer' ) . '</span>';
+        echo '<span class="mio-status-badge mio-pending">' . esc_html__( 'Not Optimized', 'morden-image-optimize' ) . '</span>';
         echo '<div class="mio-optimization-details">';
-        echo '<div class="mio-file-size">' . sprintf( esc_html__( 'Size: %s', 'morden_optimizer' ), FileHelper::format_file_size( $file_size ) ) . '</div>';
+        echo '<div class="mio-file-size">' . sprintf( esc_html__( 'Size: %s', 'morden-image-optimize' ), FileHelper::format_file_size( $file_size ) ) . '</div>';
         echo '</div>';
 
         echo '<div class="mio-actions">';
@@ -120,7 +120,7 @@ class MediaLibrary {
                     '<button type="button" class="button button-small mio-optimize-btn" data-id="%d" data-nonce="%s">%s</button>',
                     $attachment_id,
                     $nonce,
-                    esc_html__( 'Optimize', 'morden_optimizer' )
+                    esc_html__( 'Optimize', 'morden-image-optimize' )
                 );
 
             case 'reoptimize':
@@ -128,7 +128,7 @@ class MediaLibrary {
                     '<button type="button" class="button button-small mio-optimize-btn" data-id="%d" data-nonce="%s">%s</button>',
                     $attachment_id,
                     $nonce,
-                    esc_html__( 'Re-optimize', 'morden_optimizer' )
+                    esc_html__( 'Re-optimize', 'morden-image-optimize' )
                 );
 
             case 'restore':
@@ -137,7 +137,7 @@ class MediaLibrary {
                     '<button type="button" class="button button-small mio-restore-btn" data-id="%d" data-nonce="%s">%s</button>',
                     $attachment_id,
                     $restore_nonce,
-                    esc_html__( 'Restore', 'morden_optimizer' )
+                    esc_html__( 'Restore', 'morden-image-optimize' )
                 );
         }
 
@@ -155,32 +155,67 @@ class MediaLibrary {
             $savings = get_post_meta( $post->ID, '_mio_savings', true );
             $method = get_post_meta( $post->ID, '_mio_optimization_method', true );
             $optimization_date = get_post_meta( $post->ID, '_mio_optimization_date', true );
+            $backup_path = get_post_meta( $post->ID, '_mio_backup_path', true );
+
+            // Generate nonces
+            $optimize_nonce = Security::create_nonce( 'single_optimize' );
+            $restore_nonce = Security::create_nonce( 'restore_image' );
+
+            $html = sprintf(
+                '<div class="mio-optimization-info">
+                    <p><strong>%s:</strong> %s</p>
+                    <p><strong>%s:</strong> %s</p>
+                    <p><strong>%s:</strong> %s</p>
+                    <p><strong>%s:</strong> %s</p>
+                    <div class="mio-attachment-actions">
+                        <button type="button" class="button button-secondary mio-optimize-btn" data-id="%d" data-nonce="%s" data-action="reoptimize">%s</button>
+                        %s
+                    </div>
+                </div>',
+                esc_html__( 'Status', 'morden-image-optimize' ),
+                esc_html__( 'Optimized', 'morden-image-optimize' ),
+                esc_html__( 'Savings', 'morden-image-optimize' ),
+                FileHelper::format_file_size( $savings ),
+                esc_html__( 'Method', 'morden-image-optimize' ),
+                ucfirst( $method ),
+                esc_html__( 'Date', 'morden-image-optimize' ),
+                $optimization_date ? date_i18n( get_option( 'date_format' ), strtotime( $optimization_date ) ) : __( 'Unknown', 'morden-image-optimize' ),
+                $post->ID,
+                $optimize_nonce,
+                esc_html__( 'Re-optimize', 'morden-image-optimize' ),
+                ( $backup_path && file_exists( $backup_path ) ) ?
+                    sprintf( '<button type="button" class="button button-secondary mio-restore-btn" data-id="%d" data-nonce="%s" data-action="restore">%s</button>',
+                        $post->ID,
+                        $restore_nonce,
+                        esc_html__( 'Restore Original', 'morden-image-optimize' )
+                    ) : ''
+            );
 
             $form_fields['mio_optimization_info'] = [
-                'label' => __( 'Optimization Info', 'morden_optimizer' ),
+                'label' => __( 'Morden Optimizer', 'morden-image-optimize' ),
                 'input' => 'html',
-                'html' => sprintf(
-                    '<div class="mio-optimization-info">
-                        <p><strong>%s:</strong> %s</p>
-                        <p><strong>%s:</strong> %s</p>
-                        <p><strong>%s:</strong> %s</p>
-                        <p><strong>%s:</strong> %s</p>
-                    </div>',
-                    esc_html__( 'Status', 'morden_optimizer' ),
-                    esc_html__( 'Optimized', 'morden_optimizer' ),
-                    esc_html__( 'Savings', 'morden_optimizer' ),
-                    FileHelper::format_file_size( $savings ),
-                    esc_html__( 'Method', 'morden_optimizer' ),
-                    ucfirst( $method ),
-                    esc_html__( 'Date', 'morden_optimizer' ),
-                    $optimization_date ? date_i18n( get_option( 'date_format' ), strtotime( $optimization_date ) ) : __( 'Unknown', 'morden_optimizer' )
-                ),
+                'html' => $html,
             ];
         } else {
+            $optimize_nonce = Security::create_nonce( 'single_optimize' );
+
+            $html = sprintf(
+                '<div class="mio-optimization-info">
+                    <p>%s</p>
+                    <div class="mio-attachment-actions">
+                        <button type="button" class="button button-primary mio-optimize-btn" data-id="%d" data-nonce="%s" data-action="optimize">%s</button>
+                    </div>
+                </div>',
+                esc_html__( 'This image has not been optimized yet.', 'morden-image-optimize' ),
+                $post->ID,
+                $optimize_nonce,
+                esc_html__( 'Optimize Now', 'morden-image-optimize' )
+            );
+
             $form_fields['mio_optimization_info'] = [
-                'label' => __( 'Optimization Info', 'morden_optimizer' ),
+                'label' => __( 'Morden Optimizer', 'morden-image-optimize' ),
                 'input' => 'html',
-                'html' => '<p>' . esc_html__( 'This image has not been optimized yet.', 'morden_optimizer' ) . '</p>',
+                'html' => $html,
             ];
         }
 
@@ -198,11 +233,11 @@ class MediaLibrary {
         wp_localize_script( 'mio-media-library', 'mio_media', [
             'ajax_url' => admin_url( 'admin-ajax.php' ),
             'strings' => [
-                'optimizing' => __( 'Optimizing...', 'morden_optimizer' ),
-                'restoring' => __( 'Restoring...', 'morden_optimizer' ),
-                'success' => __( 'Success!', 'morden_optimizer' ),
-                'error' => __( 'Error occurred', 'morden_optimizer' ),
-                'confirm_restore' => __( 'Are you sure you want to restore the original image?', 'morden_optimizer' ),
+                'optimizing' => __( 'Optimizing...', 'morden-image-optimize' ),
+                'restoring' => __( 'Restoring...', 'morden-image-optimize' ),
+                'success' => __( 'Success!', 'morden-image-optimize' ),
+                'error' => __( 'Error occurred', 'morden-image-optimize' ),
+                'confirm_restore' => __( 'Are you sure you want to restore the original image?', 'morden-image-optimize' ),
             ],
         ]);
     }
@@ -217,13 +252,13 @@ class MediaLibrary {
         switch ( $message_type ) {
             case 'restored':
                 echo '<div class="notice notice-success is-dismissible"><p>' .
-                     esc_html__( 'Image restored successfully!', 'morden_optimizer' ) .
+                     esc_html__( 'Image restored successfully!', 'morden-image-optimize' ) .
                      '</p></div>';
                 break;
 
             case 'restore_failed':
                 echo '<div class="notice notice-error is-dismissible"><p>' .
-                     esc_html__( 'Failed to restore image. Please try again.', 'morden_optimizer' ) .
+                     esc_html__( 'Failed to restore image. Please try again.', 'morden-image-optimize' ) .
                      '</p></div>';
                 break;
         }
@@ -238,26 +273,29 @@ class MediaLibrary {
 
         if ( ! wp_attachment_is_image( $attachment_id ) ) {
             wp_send_json_error( [
-                'message' => __( 'Invalid attachment or not an image.', 'morden_optimizer' ),
+                'message' => __( 'Invalid attachment or not an image.', 'morden-image-optimize' ),
             ]);
         }
 
+        // It's a re-optimization, so clear old meta.
         delete_post_meta( $attachment_id, '_mio_optimized' );
+        delete_post_meta( $attachment_id, '_mio_optimization_error' );
 
         $optimizer = new Optimizer();
         $metadata = wp_get_attachment_metadata( $attachment_id );
-        $result = $optimizer->optimize_attachment( $metadata, $attachment_id );
+        $success = $optimizer->process_attachment_optimization( $attachment_id, $metadata );
 
-        if ( get_post_meta( $attachment_id, '_mio_optimized', true ) ) {
+        if ( $success ) {
             $savings = get_post_meta( $attachment_id, '_mio_savings', true );
             wp_send_json_success( [
-                'message' => __( 'Image optimized successfully.', 'morden_optimizer' ),
+                'message' => __( 'Image optimized successfully.', 'morden-image-optimize' ),
                 'savings' => FileHelper::format_file_size( $savings ),
                 'html' => $this->get_updated_column_html( $attachment_id ),
             ]);
         } else {
+            $error = get_post_meta( $attachment_id, '_mio_optimization_error', true );
             wp_send_json_error( [
-                'message' => __( 'Failed to optimize image.', 'morden_optimizer' ),
+                'message' => __( 'Failed to optimize image.', 'morden-image-optimize' ) . ( $error ? ' (' . $error . ')' : '' ),
             ]);
         }
     }
@@ -271,7 +309,7 @@ class MediaLibrary {
 
         if ( ! wp_attachment_is_image( $attachment_id ) ) {
             wp_send_json_error( [
-                'message' => __( 'Invalid attachment or not an image.', 'morden_optimizer' ),
+                'message' => __( 'Invalid attachment or not an image.', 'morden-image-optimize' ),
             ]);
         }
 
@@ -279,12 +317,12 @@ class MediaLibrary {
 
         if ( $restored ) {
             wp_send_json_success( [
-                'message' => __( 'Image restored successfully.', 'morden_optimizer' ),
+                'message' => __( 'Image restored successfully.', 'morden-image-optimize' ),
                 'html' => $this->get_updated_column_html( $attachment_id ),
             ]);
         } else {
             wp_send_json_error( [
-                'message' => __( 'Failed to restore image.', 'morden_optimizer' ),
+                'message' => __( 'Failed to restore image.', 'morden-image-optimize' ),
             ]);
         }
     }
