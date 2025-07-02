@@ -34,8 +34,8 @@ class BulkOptimizer {
 
     public function add_admin_menu() {
         $page_hook = add_media_page(
-            __( 'Bulk Optimize Images', 'morden_optimizer' ),
-            __( 'Bulk Optimize', 'morden_optimizer' ),
+            __( 'Bulk Optimize Images', 'morden-image-optimize' ),
+            __( 'Bulk Optimize', 'morden-image-optimize' ),
             'upload_files',
             'mio-bulk-optimize',
             [ $this, 'render_bulk_optimize_page' ]
@@ -56,45 +56,45 @@ class BulkOptimizer {
             'ajax_url' => admin_url( 'admin-ajax.php' ),
             'nonce' => Security::create_nonce( 'bulk_optimize' ),
             'strings' => [
-                'starting' => __( 'Starting optimization...', 'morden_optimizer' ),
-                'processing' => __( 'Processing images...', 'morden_optimizer' ),
-                'completed' => __( 'Optimization completed!', 'morden_optimizer' ),
-                'paused' => __( 'Optimization paused', 'morden_optimizer' ),
-                'error' => __( 'An error occurred', 'morden_optimizer' ),
-                'confirm_pause' => __( 'Are you sure you want to pause the optimization?', 'morden_optimizer' ),
-                'no_images' => __( 'No unoptimized images found.', 'morden_optimizer' ),
+                'starting' => __( 'Starting optimization...', 'morden-image-optimize' ),
+                'processing' => __( 'Processing images...', 'morden-image-optimize' ),
+                'completed' => __( 'Optimization completed!', 'morden-image-optimize' ),
+                'paused' => __( 'Optimization paused', 'morden-image-optimize' ),
+                'error' => __( 'An error occurred', 'morden-image-optimize' ),
+                'confirm_pause' => __( 'Are you sure you want to pause the optimization?', 'morden-image-optimize' ),
+                'no_images' => __( 'No unoptimized images found.', 'morden-image-optimize' ),
             ],
         ]);
     }
 
 public function render_bulk_optimize_page() {
     if ( ! current_user_can( 'upload_files' ) ) {
-        wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'morden_optimizer' ) );
+        wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'morden-image-optimize' ) );
     }
 
     $stats = $this->get_optimization_stats();
     $system_stats = $this->get_system_stats();
     ?>
     <div class="wrap">
-        <h1><?php esc_html_e( 'Bulk Optimize Images', 'morden_optimizer' ); ?></h1>
+        <h1><?php esc_html_e( 'Bulk Optimize Images', 'morden-image-optimize' ); ?></h1>
 
         <div class="mio-bulk-container">
                 <div class="mio-bulk-main">
                     <div class="mio-stats-overview">
                         <div class="mio-stat-card">
-                            <h3><?php esc_html_e( 'Total Images', 'morden_optimizer' ); ?></h3>
+                            <h3><?php esc_html_e( 'Total Images', 'morden-image-optimize' ); ?></h3>
                             <span class="mio-stat-number"><?php echo esc_html( number_format( $stats['total_images'] ) ); ?></span>
                         </div>
                         <div class="mio-stat-card">
-                            <h3><?php esc_html_e( 'Optimized', 'morden_optimizer' ); ?></h3>
+                            <h3><?php esc_html_e( 'Optimized', 'morden-image-optimize' ); ?></h3>
                             <span class="mio-stat-number"><?php echo esc_html( number_format( $stats['optimized_images'] ) ); ?></span>
                         </div>
                         <div class="mio-stat-card">
-                            <h3><?php esc_html_e( 'Remaining', 'morden_optimizer' ); ?></h3>
+                            <h3><?php esc_html_e( 'Remaining', 'morden-image-optimize' ); ?></h3>
                             <span class="mio-stat-number"><?php echo esc_html( number_format( $stats['unoptimized_images'] ) ); ?></span>
                         </div>
                         <div class="mio-stat-card">
-                            <h3><?php esc_html_e( 'Total Savings', 'morden_optimizer' ); ?></h3>
+                            <h3><?php esc_html_e( 'Total Savings', 'morden-image-optimize' ); ?></h3>
                             <span class="mio-stat-number"><?php echo esc_html( FileHelper::format_file_size( $stats['total_savings'] ) ); ?></span>
                         </div>
                     </div>
@@ -102,14 +102,14 @@ public function render_bulk_optimize_page() {
                     <div class="mio-bulk-controls">
                         <?php if ( $stats['unoptimized_images'] > 0 ) : ?>
                             <button id="mio-start-optimization" class="button button-primary button-hero">
-                                <?php esc_html_e( 'Start Bulk Optimization', 'morden_optimizer' ); ?>
+                                <?php esc_html_e( 'Start Bulk Optimization', 'morden-image-optimize' ); ?>
                             </button>
                             <button id="mio-pause-optimization" class="button button-secondary" style="display:none;">
-                                <?php esc_html_e( 'Pause', 'morden_optimizer' ); ?>
+                                <?php esc_html_e( 'Pause', 'morden-image-optimize' ); ?>
                             </button>
                         <?php else : ?>
                             <div class="notice notice-success inline">
-                                <p><?php esc_html_e( 'All images are already optimized!', 'morden_optimizer' ); ?></p>
+                                <p><?php esc_html_e( 'All images are already optimized!', 'morden-image-optimize' ); ?></p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -124,26 +124,26 @@ public function render_bulk_optimize_page() {
 
                             <div class="mio-progress-stats">
                                 <div class="mio-progress-stat">
-                                    <strong><?php esc_html_e( 'Progress:', 'morden_optimizer' ); ?></strong>
+                                    <strong><?php esc_html_e( 'Progress:', 'morden-image-optimize' ); ?></strong>
                                     <span id="mio-progress-count">0 / 0</span>
                                 </div>
                                 <div class="mio-progress-stat">
-                                    <strong><?php esc_html_e( 'Current:', 'morden_optimizer' ); ?></strong>
-                                    <span id="mio-current-image"><?php esc_html_e( 'Preparing...', 'morden_optimizer' ); ?></span>
+                                    <strong><?php esc_html_e( 'Current:', 'morden-image-optimize' ); ?></strong>
+                                    <span id="mio-current-image"><?php esc_html_e( 'Preparing...', 'morden-image-optimize' ); ?></span>
                                 </div>
                                 <div class="mio-progress-stat">
-                                    <strong><?php esc_html_e( 'Savings:', 'morden_optimizer' ); ?></strong>
+                                    <strong><?php esc_html_e( 'Savings:', 'morden-image-optimize' ); ?></strong>
                                     <span id="mio-session-savings">0 B</span>
                                 </div>
                                 <div class="mio-progress-stat">
-                                    <strong><?php esc_html_e( 'Speed:', 'morden_optimizer' ); ?></strong>
+                                    <strong><?php esc_html_e( 'Speed:', 'morden-image-optimize' ); ?></strong>
                                     <span id="mio-optimization-speed">0 img/min</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mio-log-container">
-                            <h4><?php esc_html_e( 'Optimization Log', 'morden_optimizer' ); ?></h4>
+                            <h4><?php esc_html_e( 'Optimization Log', 'morden-image-optimize' ); ?></h4>
                             <div id="mio-log" class="mio-log-scroll"></div>
                         </div>
                     </div>
@@ -152,19 +152,19 @@ public function render_bulk_optimize_page() {
                 <!-- System status card -->
 
                     <div class="mio-info-box">
-                        <h3><?php esc_html_e( 'Tips', 'morden_optimizer' ); ?></h3>
+                        <h3><?php esc_html_e( 'Tips', 'morden-image-optimize' ); ?></h3>
                         <ul>
-                            <li><?php esc_html_e( 'Keep this page open during optimization', 'morden_optimizer' ); ?></li>
-                            <li><?php esc_html_e( 'Larger images take more time to process', 'morden_optimizer' ); ?></li>
-                            <li><?php esc_html_e( 'You can continue using WordPress normally', 'morden_optimizer' ); ?></li>
+                            <li><?php esc_html_e( 'Keep this page open during optimization', 'morden-image-optimize' ); ?></li>
+                            <li><?php esc_html_e( 'Larger images take more time to process', 'morden-image-optimize' ); ?></li>
+                            <li><?php esc_html_e( 'You can continue using WordPress normally', 'morden-image-optimize' ); ?></li>
                         </ul>
                     </div>
 
                     <div class="mio-info-box">
-                        <h3><?php esc_html_e( 'Need Help?', 'morden_optimizer' ); ?></h3>
+                        <h3><?php esc_html_e( 'Need Help?', 'morden-image-optimize' ); ?></h3>
                         <p>
                             <a href="<?php echo esc_url( admin_url( 'options-general.php?page=morden_optimizer' ) ); ?>" class="button button-secondary">
-                                <?php esc_html_e( 'Plugin Settings', 'morden_optimizer' ); ?>
+                                <?php esc_html_e( 'Plugin Settings', 'morden-image-optimize' ); ?>
                             </a>
                         </p>
                     </div>
@@ -224,7 +224,7 @@ public function render_bulk_optimize_page() {
                 $results['skipped_count']++;
                 $results['log'][] = [
                     'type' => 'skipped',
-                    'message' => sprintf( __( 'Skipped %s (file not found)', 'morden_optimizer' ), $filename ),
+                    'message' => sprintf( __( 'Skipped %s (file not found)', 'morden-image-optimize' ), $filename ),
                 ];
                 continue;
             }
@@ -232,7 +232,7 @@ public function render_bulk_optimize_page() {
             $original_size = filesize( $file_path );
             $metadata = wp_get_attachment_metadata( $attachment_id );
 
-            $optimization_result = $optimizer->optimize_attachment( $metadata, $attachment_id );
+            $optimizer->process_attachment_optimization( $attachment_id, $metadata );
 
             if ( get_post_meta( $attachment_id, '_mio_optimized', true ) ) {
                 $savings = get_post_meta( $attachment_id, '_mio_savings', true );
@@ -243,7 +243,7 @@ public function render_bulk_optimize_page() {
                 $results['log'][] = [
                     'type' => 'success',
                     'message' => sprintf(
-                        __( 'Optimized %s - Saved %s', 'morden_optimizer' ),
+                        __( 'Optimized %s - Saved %s', 'morden-image-optimize' ),
                         $filename,
                         FileHelper::format_file_size( $savings )
                     ),
@@ -261,7 +261,7 @@ public function render_bulk_optimize_page() {
                 $results['log'][] = [
                     'type' => 'error',
                     'message' => sprintf(
-                        __( 'Failed to optimize %s%s', 'morden_optimizer' ),
+                        __( 'Failed to optimize %s%s', 'morden-image-optimize' ),
                         $filename,
                         $error ? ' (' . $error . ')' : ''
                     ),
@@ -293,11 +293,16 @@ public function render_bulk_optimize_page() {
         set_transient( 'mio_bulk_optimization_paused', true, HOUR_IN_SECONDS );
 
         wp_send_json_success([
-            'message' => __( 'Optimization paused successfully.', 'morden_optimizer' ),
+            'message' => __( 'Optimization paused successfully.', 'morden-image-optimize' ),
         ]);
     }
 
     private function get_optimization_stats() {
+        $stats = get_transient( 'mio_bulk_optimizer_stats' );
+        if ( false !== $stats ) {
+            return $stats;
+        }
+
         global $wpdb;
 
         $total_images = $wpdb->get_var( "
@@ -329,12 +334,17 @@ public function render_bulk_optimize_page() {
             AND pm.meta_key = '_mio_savings'
         " );
 
-        return [
+        $stats = [
             'total_images' => (int) $total_images,
             'optimized_images' => (int) $optimized_images,
             'unoptimized_images' => max( 0, (int) $total_images - (int) $optimized_images ),
             'total_savings' => (int) $total_savings,
         ];
+
+        // Cache for 1 minute
+        set_transient( 'mio_bulk_optimizer_stats', $stats, MINUTE_IN_SECONDS );
+
+        return $stats;
     }
 
     public function add_contextual_help() {
@@ -342,14 +352,14 @@ public function render_bulk_optimize_page() {
 
         $screen->add_help_tab([
             'id' => 'mio_bulk_overview',
-            'title' => __( 'Overview', 'morden_optimizer' ),
-            'content' => '<p>' . __( 'The Bulk Optimizer allows you to optimize all existing images in your Media Library at once.', 'morden_optimizer' ) . '</p>',
+            'title' => __( 'Overview', 'morden-image-optimize' ),
+            'content' => '<p>' . __( 'The Bulk Optimizer allows you to optimize all existing images in your Media Library at once.', 'morden-image-optimize' ) . '</p>',
         ]);
 
         $screen->add_help_tab([
             'id' => 'mio_bulk_process',
-            'title' => __( 'How It Works', 'morden_optimizer' ),
-            'content' => '<p>' . __( 'Images are processed in small batches to prevent server timeouts. The process can be paused and resumed at any time.', 'morden_optimizer' ) . '</p>',
+            'title' => __( 'How It Works', 'morden-image-optimize' ),
+            'content' => '<p>' . __( 'Images are processed in small batches to prevent server timeouts. The process can be paused and resumed at any time.', 'morden-image-optimize' ) . '</p>',
         ]);
     }
     private function get_system_stats() {

@@ -88,49 +88,25 @@ class Optimizer {
         return $this->optimization_method;
     }
 
-    /**
-     * Hooks into the media upload process to optimize images.
+   /**
+     * Hooks into the wp_generate_attachment_metadata filter.
      *
-     * @param array $metadata An array of attachment metadata.
-     * @param int   $attachment_id Current attachment ID.
-     * @return array The updated attachment metadata.
+     * @param array $metadata      Attachment metadata.
+     * @param int   $attachment_id Attachment ID.
+     * @return array Modified attachment metadata.
      */
-    public function optimize_attachment( $metadata, $attachment_id ) {
-        $start_time = microtime( true );
-
-        // Only optimize if auto-optimization is enabled
+    public function hook_optimize_attachment( $metadata, $attachment_id ) {
         if ( ! $this->config->is_enabled( 'auto_optimize' ) ) {
+            $this->logger->info( "Automatic optimization disabled. Skipping attachment $attachment_id." );
             return $metadata;
         }
 
-        // Only optimize images
-        if ( ! wp_attachment_is_image( $attachment_id ) ) {
-            return $metadata;
-        }
+        $this->logger->info( "Processing attachment $attachment_id through wp_generate_attachment_metadata hook." );
 
-        // Check if image is already optimized
-        if ( get_post_meta( $attachment_id, '_mio_optimized', true ) ) {
-            $this->logger->debug( "Attachment $attachment_id already optimized, skipping" );
-            return $metadata;
-        }
+        $success = $this->process_attachment_optimization( $attachment_id, $metadata );
 
-        $this->logger->info( "Starting optimization for attachment $attachment_id" );
-
-        try {
-            $result = $this->process_attachment_optimization( $attachment_id, $metadata );
-
-            $this->logger->performance(
-                "Attachment $attachment_id optimization",
-                $start_time,
-                [ 'result' => $result ? 'success' : 'failed' ]
-            );
-
-        } catch ( \Exception $e ) {
-            $this->logger->error( "Exception during attachment optimization", [
-                'attachment_id' => $attachment_id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+        if ( $success ) {
+            $this->logger->info( "Attachment $attachment_id optimized successfully via hook." );
         }
 
         return $metadata;
@@ -143,7 +119,7 @@ class Optimizer {
      * @param array $metadata Attachment metadata.
      * @return bool True on success, false on failure.
      */
-    private function process_attachment_optimization( $attachment_id, $metadata ) {
+    public function process_attachment_optimization( $attachment_id, $metadata ) {
         $file_path = get_attached_file( $attachment_id );
 
         if ( ! $file_path || ! file_exists( $file_path ) ) {
@@ -179,18 +155,7 @@ class Optimizer {
             $total_savings += $thumbnail_savings;
         }
 
-        // Update attachment metadata
-        $this->update_attachment_metadata( $attachment_id, $optimization_method, $main_result, $total_savings );
-
-        // Log optimization result
-        $this->db_manager->log_optimization(
-            $attachment_id,
-            $main_result['success'] ? 'success' : 'failed',
-            $optimization_method,
-            $main_result['original_size'],
-            $main_result['optimized_size'],
-            $main_result['error'] ?? ''
-        );
+         $this->update_attachment_metadata( $attachment_id, $optimization_method, $main_result, $total_savings );
 
         return $main_result['success'];
     }
@@ -311,12 +276,22 @@ class Optimizer {
      * @param array  $result Optimization result.
      * @param int    $total_savings Total savings including thumbnails.
      */
-    private function update_attachment_metadata( $attachment_id, $method, $result, $total_savings ) {
+    private function update_attachment_metadata( $attachment_id, $method, &$result, $total_savings ) {
+
+        // Ensure original_size is always set
+        if ( ! isset( $result['original_size'] ) ) {
+            $file_path = get_attached_file( $attachment_id );
+            $result['original_size'] = $file_path && file_exists( $file_path ) ? filesize( $file_path ) : 0;
+            if ( ! isset( $result['optimized_size'] ) ) {
+                $result['optimized_size'] = $result['original_size'];
+            }
+        }
+
         update_post_meta( $attachment_id, '_mio_optimized', true );
         update_post_meta( $attachment_id, '_mio_optimization_method', $method );
         update_post_meta( $attachment_id, '_mio_original_size', $result['original_size'] );
         update_post_meta( $attachment_id, '_mio_optimized_size', $result['optimized_size'] );
-        update_post_meta( $attachment_id, '_mio_savings', $total_savings );
+        update_post_meta( $attachment_id, '_mio_savings', $result['savings'] );
         update_post_meta( $attachment_id, '_mio_optimization_date', current_time( 'mysql' ) );
 
         if ( ! $result['success'] && ! empty( $result['error'] ) ) {
@@ -336,24 +311,17 @@ private function optimize_with_imagick( $file_path ) {
     }
 
     $file_size = filesize( $file_path );
-    if ( $file_size > 5242880 ) { // 5MB limit
+    if ( $file_size > 10485760 ) { // 5MB limit
         $this->logger->warning( "File too large for Imagick processing", [
             'file_size' => FileHelper::format_file_size( $file_size ),
-            'limit' => '5MB'
+            'limit' => '10MB'
         ]);
         return false;
     }
 
     try {
-        putenv( 'MAGICK_THREAD_LIMIT=1' );
-        putenv( 'MAGICK_MEMORY_LIMIT=64MB' );
-        putenv( 'MAGICK_MAP_LIMIT=128MB' );
-        putenv( 'MAGICK_DISK_LIMIT=256MB' );
-        putenv( 'MAGICK_TIME_LIMIT=30' );
-
         $imagick = new \Imagick( realpath( $file_path ) );
 
-        // Set Imagick resource limits (GitHub issue #1306 solution)
         $imagick->setResourceLimit( \Imagick::RESOURCETYPE_MEMORY, 64 * 1024 * 1024 ); // 64MB
         $imagick->setResourceLimit( \Imagick::RESOURCETYPE_MAP, 128 * 1024 * 1024 ); // 128MB
         $imagick->setResourceLimit( \Imagick::RESOURCETYPE_DISK, 256 * 1024 * 1024 ); // 256MB
@@ -650,7 +618,7 @@ private function optimize_with_imagick( $file_path ) {
 
         if ( ! wp_attachment_is_image( $attachment_id ) ) {
             wp_send_json_error( [
-                'message' => __( 'Invalid attachment or not an image.', 'morden_optimizer' ),
+                'message' => __( 'Invalid attachment or not an image.', 'morden-image-optimize' ),
             ]);
         }
 
@@ -660,12 +628,12 @@ private function optimize_with_imagick( $file_path ) {
         if ( $result ) {
             $savings = get_post_meta( $attachment_id, '_mio_savings', true );
             wp_send_json_success( [
-                'message' => __( 'Image optimized successfully.', 'morden_optimizer' ),
+                'message' => __( 'Image optimized successfully.', 'morden-image-optimize' ),
                 'savings' => FileHelper::format_file_size( $savings ),
             ]);
         } else {
             wp_send_json_error( [
-                'message' => __( 'Failed to optimize image.', 'morden_optimizer' ),
+                'message' => __( 'Failed to optimize image.', 'morden-image-optimize' ),
             ]);
         }
     }

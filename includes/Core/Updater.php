@@ -364,10 +364,10 @@ final class Updater {
 
             printf(
                 '<div class="notice notice-success is-dismissible"><p><strong>%s</strong> %s</p></div>',
-                esc_html__( 'Morden Image Optimizer', 'morden_optimizer' ),
+                esc_html__( 'Morden Image Optimizer', 'morden-image-optimize' ),
                 sprintf(
                     /* translators: %s: Version number */
-                    esc_html__( 'has been updated to version %s successfully!', 'morden_optimizer' ),
+                    esc_html__( 'has been updated to version %s successfully!', 'morden-image-optimize' ),
                     esc_html( $updated_version )
                 )
             );
@@ -387,8 +387,8 @@ final class Updater {
 
         printf(
             '<br><strong>%s:</strong> %s',
-            esc_html__( 'Important', 'morden_optimizer' ),
-            esc_html__( 'Please backup your site before updating. This update may include database changes.', 'morden_optimizer' )
+            esc_html__( 'Important', 'morden-image-optimize' ),
+            esc_html__( 'Please backup your site before updating. This update may include database changes.', 'morden-image-optimize' )
         );
     }
 

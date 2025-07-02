@@ -70,7 +70,7 @@ final class Plugin {
      */
     public function on_plugins_loaded() {
         load_plugin_textdomain(
-            'morden_optimizer',
+            'morden-image-optimize',
             false,
             dirname( plugin_basename( MIO_PLUGIN_DIR . 'morden-image-optimizer.php' ) ) . '/languages'
         );
@@ -126,7 +126,7 @@ final class Plugin {
         $optimizer = new Optimizer();
 
         // Hook into WordPress media upload process
-        add_filter( 'wp_generate_attachment_metadata', [ $optimizer, 'optimize_attachment' ], 10, 2 );
+        add_filter( 'wp_generate_attachment_metadata', [ $optimizer, 'hook_optimize_attachment' ], 10, 2 );
 
         // Hook for manual optimization triggers
         add_action( 'wp_ajax_mio_optimize_single', [ $optimizer, 'ajax_optimize_single' ] );
@@ -173,7 +173,7 @@ final class Plugin {
     private function display_requirements_notice() {
         $message = sprintf(
             /* translators: %1$s: Plugin name, %2$s: Required PHP version, %3$s: Required WordPress version */
-            __( '%1$s requires PHP %2$s or higher and WordPress %3$s or higher.', 'morden_optimizer' ),
+            __( '%1$s requires PHP %2$s or higher and WordPress %3$s or higher.', 'morden-image-optimize' ),
             '<strong>Morden Image Optimizer</strong>',
             '7.4',
             '5.8'

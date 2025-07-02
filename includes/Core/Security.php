@@ -222,7 +222,7 @@ class Security {
         // Check file size (max 50MB)
         $max_size = 50 * 1024 * 1024; // 50MB
         if ( isset( $file['size'] ) && $file['size'] > $max_size ) {
-            $file['error'] = __( 'File size exceeds maximum allowed size.', 'morden_optimizer' );
+            $file['error'] = __( 'File size exceeds maximum allowed size.', 'morden-image-optimize' );
             Logger::get_instance()->warning( 'File upload rejected: size too large', [
                 'file_size' => $file['size'],
                 'max_size' => $max_size,
@@ -234,7 +234,7 @@ class Security {
         $file_extension = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
 
         if ( ! in_array( $file_extension, $allowed_extensions, true ) ) {
-            $file['error'] = __( 'File type not allowed.', 'morden_optimizer' );
+            $file['error'] = __( 'File type not allowed.', 'morden-image-optimize' );
             Logger::get_instance()->warning( 'File upload rejected: invalid extension', [
                 'extension' => $file_extension,
                 'allowed' => $allowed_extensions,
@@ -269,7 +269,7 @@ class Security {
             ]);
 
             wp_send_json_error( [
-                'message' => __( 'Too many requests. Please wait before trying again.', 'morden_optimizer' ),
+                'message' => __( 'Too many requests. Please wait before trying again.', 'morden-image-optimize' ),
             ], 429 );
         }
 
@@ -325,14 +325,14 @@ class Security {
         $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
         if ( ! self::verify_nonce( $nonce, $nonce_action ) ) {
             wp_send_json_error( [
-                'message' => __( 'Security check failed.', 'morden_optimizer' ),
+                'message' => __( 'Security check failed.', 'morden-image-optimize' ),
             ], 403 );
         }
 
         // Check permissions
         if ( ! self::check_permissions( $capability ) ) {
             wp_send_json_error( [
-                'message' => __( 'You do not have permission to perform this action.', 'morden_optimizer' ),
+                'message' => __( 'You do not have permission to perform this action.', 'morden-image-optimize' ),
             ], 403 );
         }
 
@@ -341,7 +341,7 @@ class Security {
         foreach ( $required_fields as $field => $type ) {
             if ( ! isset( $_POST[ $field ] ) ) {
                 wp_send_json_error( [
-                    'message' => sprintf( __( 'Required field missing: %s', 'morden_optimizer' ), $field ),
+                    'message' => sprintf( __( 'Required field missing: %s', 'morden-image-optimize' ), $field ),
                 ], 400 );
             }
 
